@@ -1,6 +1,21 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true
-  }
+    "strict": true,
+    "baseUrl": ".",
+    "jsx": "react-native",
+    "esModuleInterop": true,
+    "lib": ["es2015", "dom"],
+    "types": ["node", "react", "react-native"],
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
+    "noEmit": true
+  },
+  "exclude": [
+    "Sign commitment",
+    "rating screen",
+    "node_modules",
+    "src/next onboarding screen"
+  ]
 }

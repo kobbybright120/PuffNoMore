@@ -1,0 +1,890 @@
+{
+  "meta": {
+    "app": "PuffNoMore",
+    "version": "1.0",
+    "createdBy": "assistant",
+    "date": "2026-02-06"
+  },
+  "progress": {
+    "totalScreens": 41,
+    "showOnAllScreens": true
+  },
+  "calculationRules": {
+    "addictionScore": {
+      "description": "Compute addiction (0-100) from cigarettesPerDay, timeToFirstSmoke, nicotineStrength, yearsSmoking, triggers",
+      "formula": "clamp(round((cigarettesPerDay_norm*40) + (timeToFirst_norm*25) + (nicotineStrength_norm*15) + (yearsSmoking_norm*10) + (triggerCount_norm*10)), 0, 100)",
+      "normalization": {
+        "cigarettesPerDay_norm": "min(cigarettesPerDay / 20, 1)",
+        "timeToFirst_norm": "map(timeToFirst) // e.g. within 5min=1, 6-30=0.7, 31-60=0.4, >60=0.1",
+        "nicotineStrength_norm": "yes=1,no=0.3,unsure=0.6",
+        "yearsSmoking_norm": "min(yearsSmoking / 30, 1)",
+        "triggerCount_norm": "min(number_of_selected_triggers / 5, 1)"
+      }
+    },
+    "readinessScore": {
+      "description": "Compute recovery potential (0-100) from confidence, support, motivation, pastAttempts (inverted)",
+      "formula": "clamp(round((confidence_norm*40) + (support_norm*25) + (motivation_norm*20) + (pastAttempts_norm*15)), 0,100)",
+      "normalization": {
+        "confidence_norm": "confidence / 5",
+        "support_norm": "(support == 'Alone' ? 0.3 : support == 'Partner' ? 0.8 : 0.9)",
+        "motivation_norm": "map(motivation) // health=0.9,family=1.0,money=0.8,control=0.7",
+        "pastAttempts_norm": "(pastAttempts == 'Never' ? 0.5 : pastAttempts == '1-2' ? 0.6 : pastAttempts == 'Several' ? 0.8 : 0.9)"
+      }
+    }
+  },
+  "screens": [
+    {
+      "id": 1,
+      "type": "value",
+      "header": "Welcome!",
+      "subtext": "Let's start by finding out if you have a problem with smoking.",
+      "ui": {
+        "animation": "fadeInLogo",
+        "centered": true,
+        "hideProgress": true
+      },
+      "progress": "1/34",
+      "next": 2
+    },
+    {
+      "id": 2,
+      "type": "question",
+      "key": "fullName",
+      "header": "What's your name?",
+      "subtext": "We’ll use this to personalize your experience.",
+      "input": { "type": "text", "placeholder": "e.g. Alex" },
+      "validation": { "required": true },
+      "progress": "2/35",
+      "next": 3
+    },
+    {
+      "id": 3,
+      "type": "question",
+      "key": "gender",
+      "header": "Choose your gender",
+      "subtext": "Sharing your gender helps us understand your journey better and offer support that feels more personal.",
+      "input": {
+        "type": "options",
+        "options": [
+          {
+            "label": "Male",
+            "icon": {
+              "library": "MaterialCommunityIcons",
+              "name": "gender-male"
+            }
+          },
+          {
+            "label": "Female",
+            "icon": {
+              "library": "MaterialCommunityIcons",
+              "name": "gender-female"
+            }
+          },
+          {
+            "label": "Other",
+            "icon": {
+              "library": "MaterialCommunityIcons",
+              "name": "gender-transgender"
+            }
+          }
+        ]
+      },
+      "ui": {
+        "optionsStyle": { "textColor": "#FFFFFF" },
+        "subtextStyle": { "color": "#FFFFFF" }
+      },
+      "validation": { "required": true },
+      "progress": "3/34",
+      "next": 4
+    },
+    {
+      "id": 4,
+      "type": "question",
+      "key": "cigarettesPerDay",
+      "header": "How many cigarettes do you use per day?",
+      "subtext": "We’ll use this to set your baseline.",
+      "input": {
+        "type": "number",
+        "min": 0,
+        "max": 200,
+        "placeholder": "e.g. 10"
+      },
+      "validation": { "required": true, "min": 0 },
+      "progress": "4/34",
+      "next": 5
+    },
+    {
+      "id": 5,
+      "type": "question",
+      "key": "timeToFirst",
+      "header": "When’s your first smoke after waking?",
+      "subtext": "You timing shows dependency level.",
+      "input": {
+        "type": "options",
+        "options": [
+          {
+            "label": "Right away",
+            "icon": { "library": "MaterialCommunityIcons", "name": "alarm" }
+          },
+          {
+            "label": "Within 30 minutes",
+            "icon": {
+              "library": "MaterialCommunityIcons",
+              "name": "clock-outline"
+            }
+          },
+          {
+            "label": "About an hour",
+            "icon": {
+              "library": "MaterialCommunityIcons",
+              "name": "hourglass-empty"
+            }
+          },
+          {
+            "label": "Later in the morning",
+            "icon": {
+              "library": "MaterialCommunityIcons",
+              "name": "weather-sunny"
+            }
+          },
+          {
+            "label": "Afternoon or evening",
+            "icon": {
+              "library": "MaterialCommunityIcons",
+              "name": "weather-night"
+            }
+          }
+        ]
+      },
+      "validation": { "required": true },
+      "progress": "5/34",
+      "next": 6
+    },
+    {
+      "id": 100,
+      "type": "value",
+      "header": "Gradual reduction over weeks",
+      "subtext": "85% of PuffNoMore users stay consistent with their weekly reduction program, proving real change is possible.",
+      "ui": {
+        "barChart": {
+          "label": "Weekly taper",
+          "weeksOption": "auto",
+          "animation": "growBarsSequential",
+          "leftColor": "#E53935",
+          "rightColor": "#90b855"
+        }
+      },
+      "progress": "4/39",
+      "next": 6
+    },
+    {
+      "id": 6,
+      "type": "question",
+      "key": "yearsSmoking",
+      "header": "How long have you been smoking?",
+      "subtext": "We’ll shape your plan around your journey.",
+      "input": {
+        "type": "options",
+        "options": [
+          {
+            "label": "Less than 1 year",
+            "icon": {
+              "library": "MaterialCommunityIcons",
+              "name": "timer-sand"
+            }
+          },
+          {
+            "label": "1–3 years",
+            "icon": {
+              "library": "MaterialCommunityIcons",
+              "name": "calendar-range"
+            }
+          },
+          {
+            "label": "4–6 years",
+            "icon": {
+              "library": "MaterialCommunityIcons",
+              "name": "calendar-clock"
+            }
+          },
+          {
+            "label": "7–10 years",
+            "icon": { "library": "MaterialCommunityIcons", "name": "calendar" }
+          },
+          {
+            "label": "Over 10 years",
+            "icon": {
+              "library": "MaterialCommunityIcons",
+              "name": "star-clock"
+            }
+          }
+        ]
+      },
+      "ui": {
+        "optionsStyle": { "textColor": "#FFFFFF" },
+        "subtextStyle": { "color": "#FFFFFF" }
+      },
+      "validation": { "required": true, "min": 0 },
+      "progress": "6/34",
+      "next": 7
+    },
+    {
+      "id": 7,
+      "key": "triggers",
+      "header": "What usually triggers you to smoke?",
+      "subtext": "Pick all that apply.",
+      "input": {
+        "type": "multiselect",
+        "options": [
+          {
+            "label": "Stress or anxiety",
+            "icon": {
+              "library": "MaterialCommunityIcons",
+              "name": "emoticon-sad-outline"
+            }
+          },
+          {
+            "label": "Boredom",
+            "icon": {
+              "library": "MaterialCommunityIcons",
+              "name": "emoticon-blank-outline"
+            }
+          },
+          {
+            "label": "Social situations",
+            "icon": {
+              "library": "MaterialCommunityIcons",
+              "name": "account-group"
+            }
+          },
+          {
+            "label": "Morning ritual",
+            "icon": { "library": "MaterialCommunityIcons", "name": "coffee" }
+          },
+          {
+            "label": "Habit or routine",
+            "icon": { "library": "MaterialCommunityIcons", "name": "repeat" }
+          }
+        ]
+      },
+      "ui": { "optionsStyle": { "textColor": "#FFFFFF" } },
+      "validation": { "required": true, "minSelected": 1 },
+      "progress": "7/34",
+      "next": 8
+    },
+    {
+      "id": 8,
+      "type": "question",
+      "key": "difficultyRelaxing",
+      "header": "Do you find it difficult to relax or feel calm without smoking/vaping?",
+      "subtext": "",
+      "input": {
+        "type": "options",
+        "options": [
+          { "label": "Rarely or never" },
+          { "label": "Occasionally" },
+          { "label": "Frequently" }
+        ]
+      },
+      "validation": { "required": true },
+      "progress": "8/34",
+      "next": 9
+    },
+    {
+      "id": 9,
+      "type": "question",
+      "key": "quitReason",
+      "header": "Why do you want to quit?",
+      "subtext": "A short reason helps us personalize your plan and motivational nudges.",
+      "input": { "type": "text", "placeholder": "e.g. to improve my health" },
+      "validation": { "required": false },
+      "progress": "9/34",
+      "next": 10
+    },
+    {
+      "id": 11,
+      "type": "question",
+      "key": "confidence",
+      "header": "How confident are you that you can quit?",
+      "subtext": "Your confidence today is just the beginning. PuffNoMore will help it grow each week.",
+      "input": { "type": "slider", "min": 1, "max": 5, "step": 1 },
+      "validation": { "required": true },
+      "progress": "11/34",
+      "next": 12
+    },
+    {
+      "id": 102,
+      "type": "value",
+      "header": "Quitting completely is a realistic target. It's not hard at all!",
+      "subtext": "90% PuffNoMore users notice progress within weeks, and gentle reduction makes it far less likely to relapse",
+      "ui": {
+        "headline": "A clear, achievable goal",
+        "lead": "Small, guided steps make big results — this approach reduces relapse risk.",
+        "note": "Shown here as inspiration from Cal AI onboarding copy.",
+        "animation": "growingPlant",
+        "lottieStyle": { "lottieWidth": "100%", "lottieHeight": 340 },
+        "actionButton": { "label": "Analyse my quiz", "style": "primary" }
+      },
+      "progress": "12/39",
+      "next": 14
+    },
+    {
+      "id": 14,
+      "type": "loading",
+      "header": "",
+      "subtext": "",
+      "ui": {
+        "animation": "dotSpinnerWithSummaryTips",
+        "showProgressBar": false,
+        "centered": true,
+        "lottieStyle": { "lottieWidth": "60%", "lottieHeight": 260 },
+        "circularAnalyzer": {
+          "mainText": "Calculating",
+          "subtexts": [
+            "Building insight...",
+            "Analyzing patterns...",
+            "Processing data...",
+            "Tracking progress...",
+            "Finishing..."
+          ],
+          "subtextIntervalMs": 1400,
+          "loop": true
+        }
+      },
+      "progress": "14/34",
+      "next": 16
+    },
+    {
+      "id": 16,
+      "type": "analysis",
+      "header": "We’ve got something important to tell you",
+      "subtext": "Your responses indicate a clear dependence on smoking.",
+      "ui": {
+        "twoBarGraph": {
+          "left": {
+            "label": "Addiction",
+            "color": "#E53935",
+            "valueToken": "{addictionScore}"
+          },
+          "right": {
+            "label": "Recovery",
+            "color": "#43A047",
+            "valueToken": "{readinessScore}"
+          },
+          "animation": "growBars"
+        },
+        "explainers": ["How we scored you", "What helps most now"]
+      },
+      "progress": "16/34",
+      "next": 106,
+      "analyticsEvent": "onboarding_analysis_shown"
+    },
+    {
+      "id": 106,
+      "type": "question",
+      "key": "symptoms_mental",
+      "header": "Excessive smoking can negatively impact your mental health",
+      "subtext": "Select any symptoms you notice below:",
+      "input": {
+        "type": "multiselect",
+        "options": [
+          { "label": "Feeling unmotivated" },
+          { "label": "Poor memory or Brain fog" },
+          { "label": "Difficulty concentrating" },
+          { "label": "General anxiety" },
+          { "label": "Lack of ambition to pursue goals" }
+        ]
+      },
+      "ui": {
+        "category": "Mental",
+        "optionsStyle": { "textColor": "#FFFFFF" },
+        "subtextStyle": { "color": "#FFFFFF" },
+        "smallHeader": {
+          "text": "Symptoms",
+          "align": "center",
+          "showBack": true,
+          "backPosition": "right"
+        },
+        "actionButton": { "label": "Clear my mind", "style": "primary" }
+      },
+      "progress": "13/39",
+      "next": 107
+    },
+    {
+      "id": 107,
+      "type": "question",
+      "key": "symptoms_physical",
+      "header": "Nicotine use can harm your physical wellbeing",
+      "subtext": "Select any symptoms you notice below:",
+      "input": {
+        "type": "multiselect",
+        "options": [
+          { "label": "Fatigue" },
+          { "label": "Low energy" },
+          { "label": "Shortness of breath" },
+          { "label": "Coughing or throat irritation" },
+          { "label": "Poor sleep quality" },
+          { "label": "Reduced stamina" }
+        ]
+      },
+      "ui": {
+        "optionsStyle": { "textColor": "#FFFFFF" },
+        "subtextStyle": { "color": "#FFFFFF" },
+        "category": "Physical",
+        "smallHeader": {
+          "text": "Symptoms",
+          "align": "center",
+          "showBack": true,
+          "backPosition": "right"
+        },
+        "actionButton": { "label": "Restore my energy", "style": "primary" }
+      },
+      "progress": "14/39",
+      "next": 108
+    },
+    {
+      "id": 108,
+      "type": "question",
+      "key": "symptoms_social",
+      "header": "Smoking can affect your relationships and lifestyle.",
+      "subtext": "Select any symptoms you notice below:",
+      "input": {
+        "type": "multiselect",
+        "options": [
+          { "label": "Feeling judged" },
+          { "label": "Avoiding social situations" },
+          { "label": "Financial strain from buying cigarettes/vapes" },
+          { "label": "Smell or hygiene concerns" },
+          { "label": "Feeling isolated" },
+          { "label": "Conflict with family or friends" }
+        ]
+      },
+      "ui": {
+        "optionsStyle": { "textColor": "#FFFFFF" },
+        "subtextStyle": { "color": "#FFFFFF" },
+        "category": "Social",
+        "smallHeader": {
+          "text": "Symptoms",
+          "align": "center",
+          "showBack": true,
+          "backPosition": "right"
+        },
+        "actionButton": { "label": "Reconnect with life", "style": "primary" }
+      },
+      "progress": "15/39",
+      "next": 17
+    },
+    {
+      "id": 18,
+      "type": "scare",
+      "header": "Nicotine is a drug",
+      "subtext": "Using nicotine releases a chemical in the brain called dopamine. This chemical makes you feel good - it’s why you crave a cigarette when stressed or bored.",
+      "ui": {
+        "backgroundColor": "#dc042d",
+        "flash": false,
+        "animation": "brainThinking",
+        "lottieStyle": {
+          "lottieWidth": "80%",
+          "lottieHeight": 200,
+          "_expandLottieContainer": true
+        }
+      },
+      "progress": "18/34",
+      "next": 19
+    },
+    {
+      "id": 19,
+      "type": "scare",
+      "header": "Health impact",
+      "subtext": "Smoking weakens your lungs and heart. That quick relief feels calming, but it’s the same damage that makes breathing harder and risks disease.",
+      "ui": {
+        "backgroundColor": "#dc042d",
+        "flash": false,
+        "animation": "covid19",
+        "lottieStyle": {
+          "lottieWidth": "80%",
+          "lottieHeight": 200,
+          "_expandLottieContainer": true
+        }
+      },
+      "progress": "19/34",
+      "next": 20
+    },
+    {
+      "id": 20,
+      "type": "scare",
+      "header": "Smoking kills drive",
+      "subtext": "Over 50% of smokers report lower stamina and motivation. The more you smoke, the harder it becomes to stay active and focused.",
+      "ui": {
+        "backgroundColor": "#dc042d",
+        "flash": false,
+        "animation": "fall",
+        "lottieStyle": {
+          "lottieWidth": "80%",
+          "lottieHeight": 200,
+          "_expandLottieContainer": true
+        }
+      },
+      "progress": "20/34",
+      "next": 21
+    },
+    {
+      "id": 21,
+      "type": "scare",
+      "header": "Feeling unhappy? ",
+      "subtext": "An elevated nicotine-driven dopamine level means you need more to feel good. This is why heavy smokers often feel anxious, irritable, and disconnected when they’re not smoking.",
+      "ui": {
+        "backgroundColor": "#dc042d",
+        "flash": false,
+        "animation": "sadEmotion",
+        "lottieStyle": {
+          "lottieWidth": "80%",
+          "lottieHeight": 200,
+          "_expandLottieContainer": true
+        }
+      },
+      "progress": "21/34",
+      "next": 22
+    },
+    {
+      "id": 24,
+      "type": "value",
+      "header": "Path to Freedom",
+      "subtext": "Freedom is possible by gradually lowering nicotine. Your brain resets to its natural balance, giving you calmer moods and stronger focus.",
+      "ui": {
+        "pathVisual": true,
+        "_positiveLike": true,
+        "flash": false,
+        "animation": "animatedPlantLoader",
+        "lottieStyle": {
+          "lottieWidth": "80%",
+          "lottieHeight": 260,
+          "_expandLottieContainer": true
+        }
+      },
+      "progress": "24/34",
+      "next": 25
+    },
+    {
+      "id": 25,
+      "type": "value",
+      "header": "Welcome to PuffNoMore",
+      "subtext": "With over 100,000 users starting their journey here, PuffNoMore blends science and empathy to help you reduce smoking step by step restoring health and freedom.",
+      "ui": {
+        "trustBadges": true,
+        "_positiveLike": true,
+        "animation": "hero",
+        "lottieStyle": {
+          "lottieWidth": "80%",
+          "lottieHeight": 260,
+          "_expandLottieContainer": true
+        }
+      },
+      "progress": "25/34",
+      "next": 26
+    },
+    {
+      "id": 26,
+      "type": "value",
+      "header": "Rewire your brain",
+      "subtext": "Science‑backed techniques help you cut down gradually. Each step retrains your brain, restores balance, and makes cravings easier to resist.",
+      "ui": {
+        "featureBullets": [
+          "Short habits",
+          "Guided exercises",
+          "Daily micro-tasks"
+        ],
+        "_positiveLike": true,
+        "animation": "meditatingBrain",
+        "lottieStyle": {
+          "lottieWidth": "80%",
+          "lottieHeight": 260,
+          "_expandLottieContainer": true
+        }
+      },
+      "progress": "26/34",
+      "next": 27
+    },
+    {
+      "id": 27,
+      "type": "value",
+      "header": "Stay motivated",
+      "subtext": "Quitting smoking works best with encouragement. PuffNoMore keeps you motivated as you cut back, regain control, and become your best self.",
+      "ui": {
+        "featureBullets": ["Motivation nudges", "Milestone rewards"],
+        "_positiveLike": true,
+        "animation": "targetHit",
+        "lottieStyle": {
+          "lottieWidth": "80%",
+          "lottieHeight": 260,
+          "_expandLottieContainer": true
+        }
+      },
+      "progress": "27/34",
+      "next": 28
+    },
+    {
+      "id": 28,
+      "type": "value",
+      "header": "Avoid setbacks",
+      "subtext": "PuffNoMore learns your smoking patterns and craving triggers, giving you round‑the‑clock support to stay strong and keep moving forward.",
+      "ui": {
+        "featureBullets": [
+          "Immediate tools",
+          "Taper plans",
+          "Relapse recovery"
+        ],
+        "_positiveLike": true,
+        "animation": "avoidSetback",
+        "lottieStyle": {
+          "lottieWidth": "80%",
+          "lottieHeight": 260,
+          "_expandLottieContainer": true
+        }
+      },
+      "progress": "28/34",
+      "next": 29
+    },
+    {
+      "id": 29,
+      "type": "value",
+      "header": "Conquer yourself",
+      "subtext": "Self‑awareness is the key to freedom. PuffNoMore helps you recognize your habits, overcome cravings, and stay in control.",
+      "ui": {
+        "featureBullets": ["Daily wins", "Streaks", "Reflection prompts"],
+        "_positiveLike": true,
+        "animation": "businessManWinner",
+        "lottieStyle": {
+          "lottieWidth": "80%",
+          "lottieHeight": 260,
+          "_expandLottieContainer": true
+        }
+      },
+      "progress": "29/34",
+      "next": 30
+    },
+    {
+      "id": 30,
+      "type": "value",
+      "header": "Level up your life",
+      "subtext": "Quitting smoking unlocks immense psychological and physical benefits. As you cut back, you grow stronger, healthier, and happier.",
+      "ui": {
+        "featureBullets": ["Health", "Relationships", "Finance"],
+        "_positiveLike": true,
+        "animation": "olympicVictoryPlayer",
+        "lottieStyle": {
+          "lottieWidth": "80%",
+          "lottieHeight": 260,
+          "_expandLottieContainer": true
+        }
+      },
+      "progress": "30/34",
+      "next": 31
+    },
+
+    {
+      "id": 31,
+      "type": "value",
+      "header": "Your Path to Freedom",
+      "ui": {
+        "theme": "valueSection",
+        "background": "commitmentGradient",
+        "titleStyle": { "color": "#FFFFFF", "align": "center" },
+        "subtextStyle": { "color": "#FFFFFF", "align": "center" },
+        "twoLineGraph": {
+          "leftLabel": "Typical quit attempts",
+          "rightLabel": "PuffNoMore gradual reduction",
+          "leftColor": "#E53935",
+          "rightColor": "#90b855",
+          "caption": "PuffNoMore helps you quit 78% faster than willpower alone with a gentle science‑backed method that keeps you free from the cold turkey relapse trap.",
+          "animation": "health_steps"
+        },
+        "containerStyle": {
+          "backgroundGradient": ["#f6f4ff", "#f3fbff"],
+          "roundedCorners": true
+        },
+        "actionButton": {
+          "label": "Continue",
+          "style": "greenGradient"
+        }
+      },
+      "progress": "31/34",
+      "next": 32
+    },
+    {
+      "id": 32,
+      "type": "question",
+      "key": "goals",
+      "header": "Choose your goals",
+      "subtext": "Pick the goals that will guide your step‑by‑step progress toward quitting",
+      "input": {
+        "type": "multiselect",
+        "options": [
+          { "label": "Save Money" },
+          { "label": "Boost Self‑Confidence" },
+          { "label": "Gain More Energy & Motivation" },
+          { "label": "Build Stronger Relationships" },
+          { "label": "Improve Self‑Control" },
+          { "label": "Reduce Stress & Anxiety" },
+          { "label": "Improve Focus & Productivity" },
+          { "label": "Reclaim Your Lifestyle" },
+          { "label": "Enhance Physical Health" },
+          { "label": "Celebrate Milestones" }
+        ]
+      },
+
+      "ui": {
+        "background": "commitmentGradient",
+        "titleStyle": { "color": "#FFFFFF", "align": "center" },
+        "subtextStyle": { "color": "#FFFFFF" },
+        "optionsStyle": { "textColor": "#FFFFFF" },
+        "actionButton": { "label": "Continue", "style": "greenGradient" }
+      },
+
+      "progress": "32/34",
+      "next": 33
+    },
+    {
+      "id": 33,
+      "type": "rating",
+      "progress": "33/34",
+      "next": 201
+    },
+    {
+      "id": 201,
+      "type": "commitment",
+      "header": "Sign your commitment",
+      "subtext": "Finally, promise yourself: I will quit step by step, until I am truly free.",
+      "ui": {
+        "hideProgress": true,
+        "titleStyle": { "color": "#FFFFFF", "align": "center" },
+        "subtextStyle": { "color": "#FFFFFF", "align": "center" },
+        "actionButton": { "label": "Let’s Go", "style": "greenGradient" },
+        "backIcon": "rating"
+      },
+      "progress": "35/35",
+      "next": 202
+    },
+    {
+      "id": 202,
+      "type": "value",
+      "header": "Welcome to PuffNoMore, your path to recovery",
+      "ui": {
+        "hideProgress": true,
+        "background": "commitmentGradient",
+        "titleStyle": { "color": "#FFFFFF", "align": "center" },
+        "subtextStyle": { "color": "#FFFFFF", "align": "center" },
+        "actionButton": {
+          "label": "Continue",
+          "style": "greenGradient"
+        }
+      },
+      "progress": "36/41",
+      "next": 203
+    },
+    {
+      "id": 203,
+      "type": "question",
+      "key": "preferredSupport",
+      "header": "Based on your answers, we've built a plan just for you.",
+      "subtext": "",
+      "ui": {
+        "background": "commitmentGradient",
+        "subtextStyle": { "color": "#FFFFFF" },
+        "optionsStyle": { "textColor": "#FFFFFF" }
+      },
+      "input": {
+        "type": "options",
+        "options": []
+      },
+      "validation": { "required": true },
+      "progress": "37/41",
+      "next": 204
+    },
+    {
+      "id": 204,
+      "type": "question",
+      "key": "quitTargetDate",
+      "header": "{fullName}, we've made a custom plan for you",
+      "subtext": "You will quit smoking by:",
+      "ui": {
+        "background": "commitmentGradient",
+        "titleStyle": { "color": "#FFFFFF", "align": "center" },
+        "subtextStyle": { "color": "#FFFFFF", "align": "center" },
+        "optionsStyle": { "textColor": "#FFFFFF" },
+        "lead": "{quitTargetDate}"
+      },
+      "progress": "38/41",
+      "next": 205
+    },
+    {
+      "id": 205,
+      "type": "question",
+      "key": "nicotineReplacement",
+      "header": "Do you plan to use nicotine replacement (patches/gum)?",
+      "subtext": "This helps tailor recommendations.",
+      "ui": {
+        "background": "commitmentGradient",
+        "subtextStyle": { "color": "#FFFFFF" },
+        "optionsStyle": { "textColor": "#FFFFFF" }
+      },
+      "input": {
+        "type": "options",
+        "options": [
+          { "label": "Yes" },
+          { "label": "No" },
+          { "label": "Maybe / Unsure" }
+        ]
+      },
+      "validation": { "required": true },
+      "progress": "39/41",
+      "next": 206
+    },
+    {
+      "id": 206,
+      "type": "value",
+      "header": "Your recommended plan",
+      "subtext": "Based on your responses, here’s a short plan to get started.",
+      "ui": {
+        "background": "commitmentGradient",
+        "headline": "Personalized Plan",
+        "lead": "A simple, guided approach tailored to you.",
+        "actionButton": { "label": "Save Plan", "style": "primary" }
+      },
+      "progress": "40/41",
+      "next": 207
+    },
+    {
+      "id": 207,
+      "type": "question",
+      "key": "notifications",
+      "header": "Allow push notifications?",
+      "subtext": "We’ll send gentle reminders and progress nudges.",
+      "ui": { "background": "commitmentGradient" },
+      "input": {
+        "type": "options",
+        "options": [
+          { "label": "Yes — daily reminders" },
+          { "label": "Only important updates" },
+          { "label": "No thanks" }
+        ]
+      },
+      "validation": { "required": true },
+      "progress": "41/41",
+      "next": null
+    }
+  ],
+  "persistence": {
+    "storageKey": "puff:onboardingResponses",
+    "saveOnAnswer": true,
+    "saveOnFinish": true
+  },
+  "analytics": {
+    "events": [
+      "onboarding_question_answered",
+      "onboarding_analysis_shown",
+      "onboarding_paywall_shown",
+      "onboarding_completed"
+    ]
+  }
+}

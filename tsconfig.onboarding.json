@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "jsx": "react-native",
+    "target": "ES2017",
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
+    "allowJs": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "lib": ["ES2017"],
+    "types": ["react", "react-native"]
+  },
+  "include": ["onboarding_manual/**/*.tsx", "onboarding_manual/**/*.ts"]
+}
