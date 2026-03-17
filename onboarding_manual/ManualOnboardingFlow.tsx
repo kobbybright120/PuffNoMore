@@ -1,18 +1,26 @@
 import React, { useState, useRef, useEffect } from "react";
 import { View, Animated, Dimensions, StyleSheet, Easing } from "react-native";
 import WelcomeScreen from "./screens/WelcomeScreen";
-import QuitSureWelcomeScreen from "./screens/QuitSureWelcomeScreen";
+
 import { useNavigation, useRoute } from "@react-navigation/native";
 import QuestionScreen1 from "./screens/QuestionScreen1";
 import QuestionScreen2 from "./screens/QuestionScreen2";
 import QuestionScreen3 from "./screens/QuestionScreen3";
 import QuestionScreen4 from "./screens/QuestionScreen4";
 import EducativeScreen1 from "./screens/EducativeScreen1";
+import EducativeScreen2 from "./screens/EducativeScreen2";
 import QuestionScreen5 from "./screens/QuestionScreen5";
 import QuestionScreen6 from "./screens/QuestionScreen6";
 import RewiringChartScreen from "./screens/RewiringChartScreen";
 import QuestionScreen7 from "./screens/QuestionScreen7";
 import QuestionScreen8 from "./screens/QuestionScreen8";
+// @ts-ignore - runtime file exists; suppress transient TS2307 here
+import EducativeScreen3 from "./screens/EducativeScreen3";
+import EducativeScreen4 from "./screens/EducativeScreen4";
+import EducativeScreen5 from "./screens/EducativeScreen5";
+import EducativeScreen6 from "./screens/EducativeScreen6";
+import QuestionScreen11 from "./screens/QuestionScreen11";
+import QuestionScreen12 from "./screens/QuestionScreen12";
 import QuestionScreen9 from "./screens/QuestionScreen9";
 import QuestionScreen10 from "./screens/QuestionScreen10";
 import AnalyzerScreen from "./screens/AnalyzerScreen";
@@ -67,82 +75,76 @@ const ManualOnboardingFlow: React.FC = () => {
       } else {
         setStep(targetIndex);
       }
-    } catch (e) {
+    } catch {
       setStep(targetIndex);
     }
   };
 
-  const screens = [
+  let screens = [
     <WelcomeScreen
       key="w"
       onNext={() => navigation.navigate("QuitSureWelcome")}
     />,
     <QuestionScreen1
       key="q1"
-      question="Question 1"
-      subtitle={"What's your name?"}
+      questionNumber="Question 1"
+      question={"What's your name?"}
       current={1}
       total={10}
       selected={answers[1] as string | number | undefined}
       onSelect={(v: number | string) => setAnswers((s) => ({ ...s, 1: v }))}
-      onNext={() => setStep(2)}
+      onNext={() => setStep((s) => s + 1)}
       onBack={() => setStep((s) => Math.max(0, s - 1))}
     />,
     <QuestionScreen2
       key="q2"
-      question="Question 2"
-      subtitle={"What's your name?"}
+      questionNumber="Question 2"
+      question={"What is your gender?"}
       current={2}
       total={10}
       selected={answers[2] as string | number | undefined}
       onSelect={(v: number | string) => setAnswers((s) => ({ ...s, 2: v }))}
-      onNext={() => setStep(3)}
+      onNext={() => setStep((s) => s + 1)}
       onBack={() => setStep((s) => Math.max(0, s - 1))}
     />,
     <QuestionScreen3
       key="q3"
-      question="Question 3"
-      subtitle={"What is your age?"}
+      questionNumber="Question 3"
+      question={"What is your age?"}
       current={3}
       total={10}
       selected={answers[3] as string | number | undefined}
       onSelect={(v: number | string) => setAnswers((s) => ({ ...s, 3: v }))}
-      onNext={() => setStep(4)}
+      onNext={() => setStep((s) => s + 1)}
       onBack={() => setStep((s) => Math.max(0, s - 1))}
     />,
     <QuestionScreen4
       key="q4"
-      question="Question 4"
-      subtitle={"In what forms have you consumed nicotine?"}
+      questionNumber="Question 4"
+      question={"In what forms have you consumed nicotine?"}
       current={4}
       total={10}
       selected={answers[4] as string | number | undefined}
       onSelect={(v: number | string) => setAnswers((s) => ({ ...s, 4: v }))}
-      onNext={() => setStep(5)}
+      onNext={() => setStep((s) => s + 1)}
       onBack={() => setStep((s) => Math.max(0, s - 1))}
     />,
-    <EducativeScreen1
-      key="educative1"
-      current={5}
-      total={10}
-      onNext={() => setStep(6)}
-      onBack={() => setStep((s) => Math.max(0, s - 1))}
-    />,
+    <EducativeScreen1 key="educative1" onNext={() => setStep(6)} />,
     <QuestionScreen5
       key="q5"
-      question="Question 5"
-      subtitle={"What's your next step in your journey with smoking?"}
+      questionNumber="Question 5"
+      question={"What's your next step in your journey with smoking?"}
       current={5}
       total={10}
       selected={answers[5] as string | number | undefined}
       onSelect={(v: number | string) => setAnswers((s) => ({ ...s, 5: v }))}
-      onNext={() => setStep(7)}
+      onNext={() => setStep((s) => s + 1)}
       onBack={() => setStep((s) => Math.max(0, s - 1))}
     />,
     <QuestionScreen6
       key="q6"
-      question={"Question 6"}
-      subtitle={"Have you made previous attempts to quit smoking?"}
+      questionNumber={"Question 6"}
+      question={"Have you made previous attempts to quit smoking?"}
       current={6}
       total={10}
       selected={answers[6] as string | number | undefined}
@@ -164,46 +166,84 @@ const ManualOnboardingFlow: React.FC = () => {
     />,
     <QuestionScreen7
       key="q7"
-      question="Question 7"
-      subtitle={"Do you have support at home to quit?"}
+      questionNumber="Question 7"
+      question={"What have you tried before to quit?"}
+      subtitle={"Knowing what you’ve tried helps us guide you better."}
       current={7}
       total={10}
       selected={answers[7] as string | number | undefined}
       onSelect={(v: number | string) => setAnswers((s) => ({ ...s, 7: v }))}
-      onNext={() => setStep(8)}
+      onNext={() => setStep((s) => s + 1)}
+      onBack={() => setStep((s) => Math.max(0, s - 1))}
+    />,
+    <EducativeScreen2
+      key="educative2"
+      current={8}
+      total={10}
+      onNext={() => setStep((s) => s + 1)}
       onBack={() => setStep((s) => Math.max(0, s - 1))}
     />,
     <QuestionScreen8
       key="q8"
-      question="Question 8"
-      subtitle={"Have you tried quitting before?"}
+      questionNumber="Question 8"
+      question={"Have you tried quitting before?"}
       current={8}
       total={10}
       selected={answers[8] as string | number | undefined}
       onSelect={(v: number | string) => setAnswers((s) => ({ ...s, 8: v }))}
-      onNext={() => setStep(9)}
+      onNext={() => setStep((s) => s + 1)}
+      onBack={() => setStep((s) => Math.max(0, s - 1))}
+    />,
+    <EducativeScreen3
+      key="educative3"
+      onNext={() => setStep((s) => s + 1)}
       onBack={() => setStep((s) => Math.max(0, s - 1))}
     />,
     <QuestionScreen9
       key="q9"
-      question="Question 9"
-      subtitle={"What time of day do you crave most?"}
+      questionNumber="Question 9"
+      question={"When you imagine life without smoking, what feels hardest?"}
       current={9}
       total={10}
       selected={answers[9] as string | number | undefined}
       onSelect={(v: number | string) => setAnswers((s) => ({ ...s, 9: v }))}
-      onNext={() => setStep(10)}
+      onNext={() => {
+        console.log(
+          "ManualOnboardingFlow: Q9 onNext called, advancing step",
+          step,
+        );
+        setStep((s) => s + 1);
+      }}
       onBack={() => setStep((s) => Math.max(0, s - 1))}
     />,
     <QuestionScreen10
       key="q10"
-      question="Question 10"
-      subtitle={"Which coping tools interest you most?"}
+      questionNumber="Question 10"
+      question={
+        "When did you start smoking/vaping and how much do you typically consume each day?"
+      }
       current={10}
       total={10}
       selected={answers[10] as string | number | undefined}
       onSelect={(v: number | string) => setAnswers((s) => ({ ...s, 10: v }))}
-      onNext={() => setStep(11)}
+      onNext={() => setStep((s) => s + 1)}
+      onBack={() => setStep((s) => Math.max(0, s - 1))}
+    />,
+    <EducativeScreen5
+      key="educative5"
+      onNext={() => setStep((s) => s + 1)}
+      onBack={() => setStep((s) => Math.max(0, s - 1))}
+    />,
+
+    <QuestionScreen11 key="q11" onNext={() => setStep((s) => s + 1)} />,
+    <EducativeScreen6
+      key="educative6"
+      onNext={() => setStep((s) => s + 1)}
+      onBack={() => setStep((s) => Math.max(0, s - 1))}
+    />,
+    <QuestionScreen12
+      key="q12"
+      onNext={() => setStep((s) => s + 1)}
       onBack={() => setStep((s) => Math.max(0, s - 1))}
     />,
     <AnalyzerScreen key="an" onComplete={() => setStep((s) => s + 1)} />,
@@ -298,12 +338,35 @@ const ManualOnboardingFlow: React.FC = () => {
       onboardingResponses={answers}
     />,
     <CompleteScreen key="c" />,
-    <EducativeScreen1
-      key="educative"
-      onNext={() => setStep((s) => s + 1)}
-      onBack={() => setStep((s) => Math.max(0, s - 1))}
-    />,
+    <EducativeScreen1 key="educative" onNext={() => setStep((s) => s + 1)} />,
   ];
+
+  // Compute dynamic question progress: count question screens (keys like "q1", "q2"...) and
+  // inject `current` and `total` props so progress reflects the actual number of question screens.
+  try {
+    const questionKeys = screens
+      .map((el, idx) => ({ el, idx }))
+      .filter(({ el }) => {
+        const k = String((el as any)?.key || "");
+        return /^q\d+/i.test(k);
+      });
+    const totalQuestions = questionKeys.length;
+    let seen = 0;
+    screens = screens.map((el) => {
+      const k = String((el as any)?.key || "");
+      if (/^q\d+/i.test(k)) {
+        seen += 1;
+        return React.cloneElement(el as any, {
+          current: seen,
+          total: totalQuestions,
+        });
+      }
+      return el;
+    });
+  } catch (e) {
+    // fallback: leave screens unchanged
+    console.warn("Failed to compute dynamic question progress", e);
+  }
 
   // start the animated translateX at the initial step so the pager doesn't
   // animate from 0 -> start on mount (which caused a visible flash of welcome)
@@ -314,6 +377,12 @@ const ManualOnboardingFlow: React.FC = () => {
     const toValue = -step * width;
     const prevStep = prevStepRef.current;
     const stepDelta = Math.abs(step - prevStep);
+
+    console.log("ManualOnboardingFlow: step change", {
+      prevStep,
+      step,
+      stepDelta,
+    });
 
     // If jumping more than one screen, don't animate across many empty pages —
     // set the translateX value immediately to avoid a brief white flash.
@@ -338,7 +407,7 @@ const ManualOnboardingFlow: React.FC = () => {
       if (typeof start === "number" && start >= 0 && start !== step) {
         setStep(start);
       }
-    } catch (e) {
+    } catch {
       // ignore
     }
   }, [route?.params?.startStep]);
@@ -354,7 +423,9 @@ const ManualOnboardingFlow: React.FC = () => {
       >
         {screens.map((screen, i) => (
           <View key={i} style={{ width }}>
-            {Math.abs(i - step) <= 1 ? screen : null}
+            {Math.abs(i - step) <= 1
+              ? React.cloneElement(screen as any, { isActive: i === step })
+              : null}
           </View>
         ))}
       </Animated.View>

@@ -2,6 +2,7 @@ import React from "react";
 import {
   View,
   Text,
+  Image,
   StyleSheet,
   TouchableOpacity,
   StatusBar,
@@ -41,7 +42,10 @@ export default function RewiringBenefitsScreen({ onNext }: any) {
           <View style={styles.testimonialContainer}>
             <View style={styles.testimonialHeader}>
               <View style={styles.avatar}>
-                <Text style={styles.avatarPlaceholder}>AH</Text>
+                <Image
+                  source={require("../../assets/testimonials/Andrew huberman.webp")}
+                  style={styles.avatarImage}
+                />
               </View>
               <View style={styles.nameContainer}>
                 <View style={styles.nameRow}>
@@ -55,9 +59,9 @@ export default function RewiringBenefitsScreen({ onNext }: any) {
                 Drastically improve your life.
               </Text>
               <Text style={styles.messageText}>
-                Resetting your dopamine balance by taking a break from highly
-                stimulating content can dramatically improve motivation,
-                emotional stability, and everyday pleasure.
+                Reducing nicotine intake helps reset your dopamine system,
+                improving motivation, emotional stability, and your ability to
+                enjoy everyday life without cigarettes.
               </Text>
             </View>
           </View>
@@ -66,7 +70,10 @@ export default function RewiringBenefitsScreen({ onNext }: any) {
           <View style={styles.testimonialContainer}>
             <View style={styles.testimonialHeader}>
               <View style={styles.avatar}>
-                <Text style={styles.avatarPlaceholder}>SB</Text>
+                <Image
+                  source={require("../../assets/testimonials/Steven Bartlett.webp")}
+                  style={styles.avatarImage}
+                />
               </View>
               <View style={styles.nameContainer}>
                 <View style={styles.nameRow}>
@@ -76,11 +83,13 @@ export default function RewiringBenefitsScreen({ onNext }: any) {
               </View>
             </View>
             <View style={styles.messageCard}>
-              <Text style={styles.messageTitle}>There's no good in porn.</Text>
+              <Text style={styles.messageTitle}>
+                Addiction takes more than it gives.
+              </Text>
               <Text style={styles.messageText}>
-                Pornography doesn't have an educational role-it's only an open
-                window for a market that brings more emptiness and addiction
-                that profit to porn.
+                Smoking feels like relief, but it quietly drains your energy,
+                confidence, and clarity. Breaking free doesn’t just remove a
+                habit, it gives you your life back.
               </Text>
             </View>
           </View>
@@ -89,24 +98,23 @@ export default function RewiringBenefitsScreen({ onNext }: any) {
           <View style={styles.testimonialContainer}>
             <View style={styles.testimonialHeader}>
               <View style={[styles.avatar, styles.avatarSmall]}>
-                <Text style={styles.avatarLogoText}>QUITTR</Text>
+                <Text style={styles.avatarLogoText}>PNM</Text>
               </View>
               <View style={styles.nameContainer}>
                 <View style={styles.nameRow}>
-                  <Text style={styles.name}>Connor</Text>
+                  <Text style={styles.name}>Kobby</Text>
                   <Ionicons name="checkmark-circle" size={20} color="#90b855" />
                 </View>
               </View>
             </View>
             <View style={styles.messageCard}>
               <Text style={styles.messageTitle}>
-                Quitting has allowed me to change my mindset on the little
-                things in life.
+                I finally feel in control again.
               </Text>
               <Text style={styles.messageText}>
-                I was coming to grips with the fact that life is dark, boring,
-                depressing and then I die. Screw that. Quitting has allowed me
-                to change my mindset on the little things in life.
+                I used to think I needed nicotine to function. This journey
+                helped me break that belief. Now I wake up clearer, calmer, and
+                in control of my life
               </Text>
             </View>
           </View>
@@ -115,20 +123,23 @@ export default function RewiringBenefitsScreen({ onNext }: any) {
           <View style={styles.testimonialContainer}>
             <View style={styles.testimonialHeader}>
               <View style={[styles.avatar, styles.avatarSmall]}>
-                <Text style={styles.avatarLogoText}>QUITTR</Text>
+                <Text style={styles.avatarLogoText}>PNM</Text>
               </View>
               <View style={styles.nameContainer}>
                 <View style={styles.nameRow}>
-                  <Text style={styles.name}>Jack</Text>
+                  <Text style={styles.name}>Jake</Text>
                   <Ionicons name="checkmark-circle" size={20} color="#90b855" />
                 </View>
               </View>
             </View>
             <View style={styles.messageCard}>
-              <Text style={styles.messageTitle}>I feel more confident.</Text>
+              <Text style={styles.messageTitle}>
+                I became the person I wanted to be.
+              </Text>
               <Text style={styles.messageText}>
-                I've noticed significant improvements in my confidence and
-                social interactions since quitting.
+                Quitting didn’t just change my habits, it changed how I see
+                myself. I’m more confident, more present, and no longer
+                dependent on smoking.
               </Text>
             </View>
           </View>
@@ -149,7 +160,7 @@ export default function RewiringBenefitsScreen({ onNext }: any) {
               onPress={onNext}
               style={styles.buttonTouchable}
             >
-              <Text style={styles.buttonText}>See Progress Chart</Text>
+              <Text style={styles.buttonText}>Continue</Text>
             </TouchableOpacity>
           </LinearGradient>
         </View>
@@ -192,6 +203,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 20,
     paddingTop: 12,
+    justifyContent: "flex-start",
   },
   testimonialContainer: {
     marginBottom: 24,
@@ -227,6 +239,12 @@ const styles = StyleSheet.create({
     fontSize: 8,
     fontWeight: "bold",
     letterSpacing: 1,
+  },
+  avatarImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    resizeMode: "cover",
   },
   nameContainer: {
     flex: 1,
@@ -285,5 +303,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 18,
     fontWeight: "600",
+    textAlign: "center",
   },
 });

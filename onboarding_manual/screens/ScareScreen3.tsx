@@ -10,10 +10,9 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 let LottieView: any = null;
 try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const mod = require("lottie-react-native");
   LottieView = mod && (mod.default || mod);
-} catch (e) {
+} catch {
   LottieView = null;
 }
 import animations from "../../src/onboarding/animationIndex";
@@ -41,9 +40,10 @@ const ScareScreen3: React.FC<Props & { scareIndex?: number }> = ({
   scareIndex = 3,
 }) => {
   const ArrowIcon = () => (
-    <Ionicons name="chevron-forward" size={20} color="#000000" />
+    <Ionicons name="chevron-forward" size={18} color="#000000" />
   );
   const totalSlides = 4;
+  const animSize = Math.round(responsiveSize(260, 180));
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -53,16 +53,30 @@ const ScareScreen3: React.FC<Props & { scareIndex?: number }> = ({
         </View>
 
         <View style={styles.illustrationContainer}>
-          <View style={styles.animationWrapper}>
+          <View
+            style={[
+              styles.animationWrapper,
+              { width: animSize, height: animSize },
+            ]}
+          >
             {LottieView ? (
               <LottieView
-                source={require("../../assets/animations/extracted/animations/fall.json")}
+                source={animations.fall}
                 autoPlay
                 loop
-                style={{ width: "80%", height: 200 }}
+                style={{ width: "100%", height: "100%" }}
               />
             ) : (
-              <View style={styles.placeholder}>
+              <View
+                style={[
+                  styles.placeholder,
+                  {
+                    width: Math.round(animSize * 0.7),
+                    height: Math.round(animSize * 0.7),
+                    borderRadius: Math.round(animSize * 0.35),
+                  },
+                ]}
+              >
                 <Text style={styles.placeholderText}>Lottie Animation</Text>
               </View>
             )}
@@ -70,10 +84,10 @@ const ScareScreen3: React.FC<Props & { scareIndex?: number }> = ({
         </View>
 
         <View style={styles.contentContainer}>
-          <Text style={styles.title}>Porn rewires your brain</Text>
+          <Text style={styles.title}>Smoking kills drive</Text>
           <Text style={styles.description}>
-            Repeated exposure changes how your brain responds to real intimacy
-            and pleasure.
+            Over 50% of smokers report lower stamina and motivation. The more
+            you smoke, the harder it becomes to stay active and focused.
           </Text>
         </View>
 
@@ -119,20 +133,20 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#dc2626",
-    paddingHorizontal: 32,
-    paddingVertical: 48,
-    paddingBottom: 120,
+    paddingHorizontal: 20,
+    paddingVertical: 28,
+    paddingBottom: 80,
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
   },
   logoContainer: {
     marginTop: responsiveSize(16, 8),
   },
   logo: {
     color: "white",
-    fontSize: 36,
-    fontWeight: "900",
-    letterSpacing: 2,
+    fontSize: 22,
+    fontWeight: "700",
+    letterSpacing: 1,
     fontFamily: "Inter",
   },
   illustrationContainer: {
@@ -141,8 +155,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   animationWrapper: {
-    width: 300,
-    height: 300,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -162,31 +174,33 @@ const styles = StyleSheet.create({
   contentContainer: {
     alignItems: "center",
     maxWidth: 400,
-    marginBottom: 32,
+    marginBottom: 120,
   },
   title: {
     color: "white",
-    fontSize: 30,
-    fontWeight: "bold",
-    marginBottom: 24,
+    fontSize: 24,
+    fontWeight: "700",
+    marginBottom: 12,
     textAlign: "center",
     fontFamily: "Inter",
   },
   description: {
     color: "rgba(255, 255, 255, 0.95)",
-    fontSize: 18,
-    lineHeight: 28,
+    fontSize: 16,
+    lineHeight: 24,
     textAlign: "center",
     fontFamily: "Inter",
   },
   paginationContainer: {
+    position: "absolute",
+    bottom: 96,
+    alignSelf: "center",
     flexDirection: "row",
-    marginBottom: 32,
   },
   dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   dotActive: {
     backgroundColor: "white",
@@ -196,14 +210,14 @@ const styles = StyleSheet.create({
   },
   nextButton: {
     position: "absolute",
-    bottom: 28,
+    bottom: 36,
     alignSelf: "center",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 32,
-    paddingVertical: 16,
-    borderRadius: 50,
+    paddingHorizontal: 26,
+    paddingVertical: 12,
+    borderRadius: 36,
     backgroundColor: "#ffffff",
   },
   nextButtonText: {

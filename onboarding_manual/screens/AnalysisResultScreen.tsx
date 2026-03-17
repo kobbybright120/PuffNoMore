@@ -114,7 +114,7 @@ const AnalysisResultScreen: React.FC<any> = ({ navigation, onNext }) => {
 
               {/* Main message */}
               <Text style={styles.message}>
-                Your Responses indicate a clear dependence on cigarettes*
+                Your Responses indicate a clear dependence on nicotine*
               </Text>
 
               {/* Bar Chart */}
@@ -152,7 +152,7 @@ const AnalysisResultScreen: React.FC<any> = ({ navigation, onNext }) => {
               <View style={styles.comparisonContainer}>
                 <Text style={styles.comparisonNumber}>{difference}%</Text>
                 <Text style={styles.comparisonText}>
-                  higher dependence on cigarettes
+                  higher dependence on nicotine
                 </Text>
                 <FileTextIcon />
               </View>

@@ -4,92 +4,83 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  StatusBar,
   SafeAreaView,
 } from "react-native";
-import GreenGradientBackground from "../components/GreenGradientBackground";
 import { Ionicons } from "@expo/vector-icons";
+import GreenGradientBackground from "../components/GreenGradientBackground";
 let LottieView: any = null;
 try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
   const mod = require("lottie-react-native");
   LottieView = mod && (mod.default || mod);
-} catch (_) {
+} catch (e) {
   LottieView = null;
 }
 import animations from "../../src/onboarding/animationIndex";
 
 const ValueScreen5 = ({ navigation, route, onNext }: any) => {
-  const valueIndex = route?.params?.valueIndex ?? 4; // fifth screen
+  const valueIndex = route?.params?.valueIndex ?? 4;
   const totalScreens = 7;
 
-  const handleNext = () => {
-    const nextScreenIndex = valueIndex + 1;
-    if (navigation && navigation.navigate) {
-      if (nextScreenIndex < totalScreens) {
-        const nextName = `ValueScreen${nextScreenIndex + 1}`;
-        navigation.navigate(nextName, { valueIndex: nextScreenIndex });
-      } else {
-        navigation.navigate("Complete");
-      }
-    } else if (typeof onNext === "function") {
-      onNext();
-    } else {
-      console.log("Next pressed");
-    }
-  };
+  const ArrowIcon = () => (
+    <Ionicons name="chevron-forward" size={20} color="#000000" />
+  );
 
   return (
     <GreenGradientBackground>
-      <StatusBar barStyle="light-content" />
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.container}>
           {/* Logo */}
           <View style={styles.logoContainer}>
-            <Text style={styles.logo}>QUITTR</Text>
+            <Text style={styles.logo}>PuffNoMore</Text>
           </View>
 
-          {/* Lottie Animation */}
+          {/* Character Illustration - Lottie Animation */}
           <View style={styles.illustrationContainer}>
-            {LottieView ? (
-              <LottieView
-                source={animations.avoidSetback}
-                autoPlay
-                loop
-                style={styles.lottieAnimation}
-              />
-            ) : (
-              <View style={styles.animationPlaceholder}>
-                <Text style={styles.placeholderText}>
-                  [LOTTIE ANIMATION HERE]
-                </Text>
-                <Text style={styles.placeholderSubtext}>
-                  Castle with key & shield lock
-                </Text>
-              </View>
-            )}
-          </View>
-
-          {/* Text Content */}
-          <View style={styles.contentContainer}>
-            <Text style={styles.heading}>Avoid setbacks</Text>
-            <Text style={styles.description}>
-              QUITTR <Text style={styles.bold}>learns your habits</Text> and
-              temptation triggers, providing you with{" "}
-              <Text style={styles.bold}>24/7 protection</Text>.
-            </Text>
-          </View>
-
-          {/* Press Logos */}
-          <View style={styles.pressContainer}>
-            <Text style={styles.pressForbes}>Forbes</Text>
-            <Text style={styles.pressWeekly}>L:WEEKLY</Text>
-            <View style={styles.pressTech}>
-              <Text style={styles.pressTechText}>TECH:</Text>
-              <Text style={styles.pressTechText}>TIMES</Text>
+            <View style={styles.animationWrapper}>
+              {LottieView ? (
+                <LottieView
+                  source={animations.avoidSetback}
+                  autoPlay
+                  loop
+                  style={styles.lottieAnimation}
+                />
+              ) : (
+                <View style={styles.placeholder}>
+                  <Text style={styles.placeholderText}></Text>
+                </View>
+              )}
             </View>
           </View>
 
-          {/* Pagination dots */}
+          {/* Content */}
+          <View style={styles.contentContainer}>
+            <Text style={styles.title}>
+              Avoid <Text style={styles.titleBold}>Setbacks</Text>
+            </Text>
+            <Text style={styles.description}>
+              PuffNoMore learns your smoking patterns and craving triggers,
+              giving you round‑the‑clock support to stay strong and keep moving
+              forward."
+            </Text>
+
+            {/* Brand Logos */}
+            <View style={styles.brandsContainer}>
+              <Text style={styles.forbesLogo}>Forbes</Text>
+              <View style={styles.weeklyContainer}>
+                <View style={styles.pcBox}>
+                  <Text style={styles.pcText}>PC</Text>
+                </View>
+                <Text style={styles.weeklyText}>WEEKLY</Text>
+              </View>
+              <View style={styles.techTimesContainer}>
+                <Text style={styles.techTimesText}>TECH:</Text>
+                <Text style={styles.techTimesText}>TIMES</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Pagination dots (screen progress) */}
           <View style={styles.paginationContainer}>
             {Array.from({ length: totalScreens }).map((_, index) => (
               <TouchableOpacity
@@ -119,10 +110,24 @@ const ValueScreen5 = ({ navigation, route, onNext }: any) => {
         <TouchableOpacity
           style={styles.nextButton}
           activeOpacity={0.8}
-          onPress={handleNext}
+          onPress={() => {
+            const nextScreenIndex = valueIndex + 1;
+            if (navigation && navigation.navigate) {
+              if (nextScreenIndex < totalScreens) {
+                const nextName = `ValueScreen${nextScreenIndex + 1}`;
+                navigation.navigate(nextName, { valueIndex: nextScreenIndex });
+              } else {
+                navigation.navigate("Complete");
+              }
+            } else if (typeof onNext === "function") {
+              onNext();
+            } else {
+              console.log("Next pressed");
+            }
+          }}
         >
-          <Text style={styles.buttonText}>Next</Text>
-          <Ionicons name="chevron-forward" size={20} color="#000000" />
+          <Text style={styles.nextButtonText}>Next</Text>
+          <ArrowIcon />
         </TouchableOpacity>
       </SafeAreaView>
     </GreenGradientBackground>
@@ -130,133 +135,141 @@ const ValueScreen5 = ({ navigation, route, onNext }: any) => {
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
+  safeArea: { flex: 1 },
   container: {
     flex: 1,
-    paddingHorizontal: 32,
-    paddingVertical: 48,
-    paddingBottom: 120,
+    paddingHorizontal: 20,
+    paddingVertical: 28,
+    paddingBottom: 80,
     alignItems: "center",
     justifyContent: "space-between",
   },
-  logoContainer: {
-    marginTop: 32,
-  },
+  logoContainer: { marginTop: 16 },
   logo: {
-    color: "#FFFFFF",
-    fontSize: 28,
-    fontWeight: "bold",
-    letterSpacing: 3,
+    color: "white",
+    fontSize: 22,
+    fontWeight: "700",
+    letterSpacing: 1,
+    fontFamily: "Inter",
   },
   illustrationContainer: {
-    flex: 1,
-    alignItems: "center",
+    flex: 0.55,
     justifyContent: "center",
+    alignItems: "center",
+    maxHeight: 360,
   },
-  // Placeholder styles - remove after adding Lottie
-  animationPlaceholder: {
-    width: "100%",
-    height: "100%",
-    alignItems: "center",
-    justifyContent: "center",
+  animationWrapper: { justifyContent: "center", alignItems: "center" },
+  lottieAnimation: { width: 260, height: 260 },
+  placeholder: {
+    width: 200,
+    height: 200,
     backgroundColor: "rgba(255, 255, 255, 0.1)",
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: "rgba(255, 255, 255, 0.3)",
-    borderStyle: "dashed",
+    borderRadius: 100,
+    justifyContent: "center",
+    alignItems: "center",
   },
   placeholderText: {
-    color: "rgba(255, 255, 255, 0.6)",
-    fontSize: 16,
-    fontWeight: "600",
-    marginBottom: 8,
-  },
-  placeholderSubtext: {
-    color: "rgba(255, 255, 255, 0.4)",
-    fontSize: 12,
-  },
-  lottieAnimation: {
-    width: 300,
-    height: 280,
+    color: "white",
+    fontSize: 14,
+    textAlign: "center",
+    fontFamily: "Inter",
   },
   contentContainer: {
     alignItems: "center",
+    maxWidth: 400,
+    marginBottom: 24,
     paddingHorizontal: 20,
   },
-  heading: {
-    color: "#FFFFFF",
-    fontSize: 32,
-    fontWeight: "bold",
-    marginBottom: 20,
+  title: {
+    color: "white",
+    fontSize: 24,
+    fontWeight: "700",
+    marginBottom: 12,
     textAlign: "center",
+    fontFamily: "Inter",
   },
+  titleBold: { fontWeight: "900", fontFamily: "Inter" },
   description: {
     color: "rgba(255, 255, 255, 0.9)",
     fontSize: 16,
     lineHeight: 24,
     textAlign: "center",
+    marginBottom: 32,
+    fontFamily: "Inter",
   },
-  bold: {
-    fontWeight: "700",
-  },
-  pressContainer: {
+  semiBold: { fontWeight: "600", fontFamily: "Inter" },
+  brandsContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 32,
-    marginTop: 24,
+    marginBottom: 32,
   },
-  pressForbes: {
-    color: "#FFFFFF",
+  forbesLogo: {
+    color: "white",
     fontSize: 20,
-    fontFamily: "serif",
-  },
-  pressWeekly: {
-    color: "#FFFFFF",
-    fontSize: 16,
     fontWeight: "bold",
+    fontStyle: "italic",
+    fontFamily: "Inter",
+    marginHorizontal: 12,
   },
-  pressTech: {
+  weeklyContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginHorizontal: 12,
+  },
+  pcBox: {
+    width: 24,
+    height: 24,
+    backgroundColor: "white",
+    justifyContent: "center",
     alignItems: "center",
   },
-  pressTechText: {
-    color: "#FFFFFF",
-    fontSize: 11,
+  pcText: {
+    color: "black",
+    fontSize: 10,
+    fontWeight: "900",
+    fontFamily: "Inter",
+  },
+  weeklyText: {
+    color: "white",
+    fontSize: 20,
     fontWeight: "bold",
+    fontFamily: "Inter",
+  },
+  techTimesContainer: { alignItems: "flex-start", marginHorizontal: 12 },
+  techTimesText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "bold",
+    lineHeight: 14,
+    fontFamily: "Inter",
   },
   paginationContainer: {
+    position: "absolute",
+    bottom: 96,
+    alignSelf: "center",
     flexDirection: "row",
-    marginTop: 32,
   },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-  },
-  dotActive: {
-    backgroundColor: "#FFFFFF",
-  },
-  dotInactive: {
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-  },
+  dot: { width: 8, height: 8, borderRadius: 4 },
+  dotActive: { backgroundColor: "white" },
+  dotInactive: { backgroundColor: "rgba(255, 255, 255, 0.3)" },
   nextButton: {
     position: "absolute",
-    bottom: 28,
+    bottom: 36,
     alignSelf: "center",
-    backgroundColor: "#FFFFFF",
-    paddingVertical: 16,
-    paddingHorizontal: 48,
-    borderRadius: 30,
     flexDirection: "row",
     alignItems: "center",
-    gap: 8,
+    justifyContent: "center",
+    paddingHorizontal: 26,
+    paddingVertical: 12,
+    borderRadius: 36,
+    backgroundColor: "#ffffff",
   },
-  buttonText: {
+  nextButtonText: {
     color: "#000000",
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: "bold",
+    fontFamily: "Inter",
   },
 });
 

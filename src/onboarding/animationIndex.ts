@@ -35,6 +35,7 @@ export const animations: Record<string, any> = {
   // Olympic games victory player animation for screen id 30
   olympicVictoryPlayer: require("../../assets/animations/extracted/animations/Olympic games 2021 Victory player.json"),
   tree: require("../../assets/animations/extracted/animations/tree.json"),
+  "light,idea,create": require("../../assets/animations/extracted/animations/light,idea,create.json"),
 };
 
 export default animations;

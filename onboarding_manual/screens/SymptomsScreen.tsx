@@ -106,7 +106,7 @@ const SymptomsScreen: React.FC<any> = ({ navigation, onBack, onNext }: any) => {
 
               <View style={styles.alertBanner}>
                 <Text style={styles.alertText}>
-                  Excessive porn use can have negative impacts psychologically.
+                  Excessive smoking can have negative impacts psychologically.
                 </Text>
               </View>
 

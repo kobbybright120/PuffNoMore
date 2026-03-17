@@ -531,7 +531,7 @@
     {
       "id": 21,
       "type": "scare",
-      "header": "Feeling unhappy? ",
+      "header": "Feeling unhappy?",
       "subtext": "An elevated nicotine-driven dopamine level means you need more to feel good. This is why heavy smokers often feel anxious, irritable, and disconnected when they’re not smoking.",
       "ui": {
         "backgroundColor": "#dc042d",

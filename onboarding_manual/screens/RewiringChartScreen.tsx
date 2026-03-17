@@ -9,11 +9,11 @@ import {
   useWindowDimensions,
   ScrollView,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+
 import StarryBackground from "../components/StarryBackground";
 import TwoLineGraph from "../../src/components/TwoLineGraph";
 
-export default function RewiringChartScreen({ onBack, onContinue }: any) {
+export default function RewiringChartScreen({ onContinue }: any) {
   const cfg = {
     leftLabel: "Typical quit attempts",
     rightLabel: "PuffNoMore gradual reduction",
@@ -36,23 +36,23 @@ export default function RewiringChartScreen({ onBack, onContinue }: any) {
         </View>
 
         <ScrollView
-          contentContainerStyle={styles.content}
+          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Header */}
-          <Text style={styles.headerMain}>
-            Quitting Overnight Feels Impossible. Reducing Gradually Works.
-          </Text>
+          {/* Header block styled like EducativeScreen1 */}
+          <View style={styles.failHeaderBlock}>
+            <Text style={styles.failHeaderTitle}>
+              Freedom Comes Step by Step.
+            </Text>
+            <Text style={styles.failHeaderSubtitle}>
+              PuffNoMore guides you to gently reduce smoking or vaping. As
+              cravings fade gradually, you’ll feel calm, supported, and in
+              control until you’re completely free.
+            </Text>
+          </View>
 
-          {/* Subtext */}
-          <Text style={styles.subtext}>
-            PuffNoMore guides you step by step to gently reduce smoking or
-            vaping. As cravings fade gradually, you’ll feel calm, supported, and
-            in control until you’re completely free
-          </Text>
-
-          {/* Chart Section */}
-          <View style={styles.card}>
+          {/* Chart-like block styled like EducativeScreen1 */}
+          <View style={styles.chartContainer}>
             {/* Legend row */}
             <View style={styles.legendRow}>
               <View style={styles.legendItem}>
@@ -83,28 +83,28 @@ export default function RewiringChartScreen({ onBack, onContinue }: any) {
             />
           </View>
 
-          {/* Trust Element */}
-          {/* Trust Badge */}
-          <View style={styles.trustBadge}>
-            <Text style={styles.trustBadgeText}>
+          {/* Info block styled like EducativeScreen1 */}
+          <View style={styles.infoContainer}>
+            <Text style={styles.infoText}>
               In clinical testing, over 80% of users reported reduced cravings
               and minimal withdrawal symptoms while tapering down with
-              PuffNoMore showing that gradual reduction builds lasting freedom.
+              PuffNoMore.
             </Text>
           </View>
-
-          <View style={{ height: 28 }} />
+          {/* Spacer for bottom button */}
+          <View style={{ height: 120 }} />
         </ScrollView>
 
         <View style={styles.footer} pointerEvents="box-none">
           <TouchableOpacity
             onPress={onContinue}
-            activeOpacity={0.9}
-            style={{ width: "100%" }}
+            activeOpacity={0.85}
+            style={[
+              styles.continueButton,
+              { width: Math.min(420, screenW - 48) },
+            ]}
           >
-            <LinearGradient colors={["#90b855", "#63a96a"]} style={styles.cta}>
-              <Text style={styles.ctaText}>Start Your Journey</Text>
-            </LinearGradient>
+            <Text style={styles.continueButtonText}>Start Your Journey</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -121,12 +121,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingTop: 8,
   },
-  backButton: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
-  },
+
   headerTitle: {
     color: "#FFFFFF",
     fontSize: 18,
@@ -134,70 +129,52 @@ const styles = StyleSheet.create({
     fontFamily: "Inter",
   },
 
-  content: {
-    paddingHorizontal: 20,
-    paddingTop: 14,
-    paddingBottom: 140,
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 24,
+    paddingTop: 20,
   },
-  headerMain: {
-    color: "#fff",
+  failHeaderBlock: {
+    backgroundColor: "rgba(34,197,94,0.10)",
+    borderRadius: 16,
+    padding: 18,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: "rgba(34,197,94,0.18)",
+    alignItems: "center",
+    shadowColor: "#22c55e",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  failHeaderTitle: {
     fontSize: 20,
-    fontWeight: "bold",
-    textAlign: "left",
-    fontFamily: "Inter",
+    fontWeight: "700",
+    color: "#22c55e",
     marginBottom: 10,
-    marginTop: 8,
-    lineHeight: 26,
-  },
-  headerSub: {
-    color: "#e6ffe6",
-    fontSize: 17,
-    fontWeight: "600",
-    marginBottom: 8,
-    textAlign: "left",
-    fontFamily: "Inter",
-  },
-  subtext: {
-    color: "#cfcfcf",
-    fontSize: 16,
-    fontWeight: "500",
-    textAlign: "left",
-    fontFamily: "Inter",
-    marginBottom: 16,
-    lineHeight: 24,
-  },
-  chartTitle: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "600",
     textAlign: "center",
-    fontFamily: "Inter",
-    marginBottom: 8,
+    letterSpacing: 0.2,
   },
-  trustElement: {
-    color: "#fff",
+  failHeaderSubtitle: {
     fontSize: 15,
-    fontStyle: "italic",
+    color: "#fff",
     textAlign: "center",
-    fontFamily: "Inter",
-    marginTop: 18,
-    marginBottom: 8,
-    lineHeight: 20,
-    fontWeight: "400",
+    lineHeight: 22,
+    fontWeight: "500",
   },
-  card: {
-    marginTop: 8,
-    borderRadius: 14,
-    overflow: "hidden",
-    backgroundColor: "rgba(255,255,255,0.04)",
-    paddingVertical: 12,
-    paddingHorizontal: 12,
-    // subtle elevation
+  chartContainer: {
+    backgroundColor: "rgba(255,255,255,0.06)",
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.12)",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.12,
-    shadowRadius: 10,
-    elevation: 3,
+    shadowRadius: 12,
+    elevation: 6,
   },
   legendRow: {
     flexDirection: "row",
@@ -235,35 +212,53 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   trustBadgeText: { color: "#eafbe8", fontSize: 16, lineHeight: 22, flex: 1 },
+  infoContainer: {
+    marginBottom: 24,
+    padding: 16,
+    borderRadius: 14,
+    backgroundColor: "rgba(34,197,94,0.13)",
+    borderWidth: 1,
+    borderColor: "rgba(34,197,94,0.18)",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#22c55e",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  infoText: {
+    color: "#fff",
+    fontSize: 15,
+    fontWeight: "500",
+    textAlign: "center",
+    lineHeight: 22,
+    letterSpacing: 0.1,
+  },
   footer: {
     position: "absolute",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    paddingTop: 8,
+    left: 24,
+    right: 24,
+    bottom: 28,
     alignItems: "center",
     backgroundColor: "transparent",
     zIndex: 20,
   },
-  cta: {
-    borderRadius: 30,
-    width: "100%",
+  continueButton: {
+    backgroundColor: "#63a96a",
+    borderRadius: 28,
+    paddingVertical: 14,
     alignItems: "center",
     justifyContent: "center",
-    paddingVertical: 16,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.18,
-    shadowRadius: 12,
-    elevation: 4,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  ctaTouch: { alignItems: "center" },
-  ctaText: {
-    color: "#FFFFFF",
-    fontSize: 18,
-    fontWeight: "700",
-    fontFamily: "Inter",
+  continueButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

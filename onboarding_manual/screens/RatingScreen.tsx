@@ -14,14 +14,24 @@ import {
 } from "react-native";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import CommitmentBackground from "../../src/components/CommitmentBackground202";
+import StarryBackground from "../components/StarryBackground";
+
+// optional runtime BlurView fallback — typed as `any` so TSX accepts usage
+const BlurView: any = (() => {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    return require("expo-blur").BlurView;
+  } catch (e) {
+    return null;
+  }
+})();
 
 const testimonials = [
   {
     name: "Michael Stevens",
     avatar: require("../../assets/testimonials/casual-dressed-man-mockup-psd-playing-with-phone-outdoor-photoshoot_53876-1082530.jpg"),
     quote:
-      "PuffNoMore’s progress tracker kept me motivated. Watching smoke-free days grow gave me pride and determination to continue.",
+      "PuffNoMore’s progress tracker kept me motivated. Seeing my daily cigarettes drop week by week gave me real confidence that I was finally in control.",
   },
   {
     name: "Tony Coleman",
@@ -133,7 +143,7 @@ export default function RatingScreen({ onBack, onNext }: any) {
   };
 
   return (
-    <CommitmentBackground>
+    <StarryBackground>
       <StatusBar barStyle="light-content" />
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.header}>
@@ -175,66 +185,135 @@ export default function RatingScreen({ onBack, onNext }: any) {
               ))}
             </View>
 
-            <Text style={{ color: "#dfe7da" }}>+ 1,000,000 people</Text>
+            <Text style={{ color: "#dfe7da" }}>100,000+ people</Text>
           </View>
 
           <View style={{ marginTop: 16, width: "100%", alignItems: "center" }}>
             {testimonials.map((t, idx) => (
               <View key={idx} style={styles.testimonialCard}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    marginBottom: 8,
-                  }}
-                >
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
+                {BlurView ? (
+                  <BlurView
+                    intensity={60}
+                    tint="dark"
+                    style={styles.testimonialBlur}
+                  >
                     <View
                       style={{
-                        width: 44,
-                        height: 44,
-                        borderRadius: 22,
-                        overflow: "hidden",
-                        marginRight: 8,
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        marginBottom: 8,
                       }}
                     >
-                      <Image
-                        source={t.avatar}
-                        style={{ width: 44, height: 44 }}
-                      />
-                    </View>
-
-                    <View>
-                      <Text
-                        style={{
-                          color: "#fff",
-                          fontWeight: "600",
-                          fontSize: 16,
-                        }}
+                      <View
+                        style={{ flexDirection: "row", alignItems: "center" }}
                       >
-                        {t.name}
-                      </Text>
-                      <Text style={{ color: "#cbd5c4", fontSize: 13 }}>
-                        @{t.name.split(" ")[0].toLowerCase()}
-                      </Text>
+                        <View
+                          style={{
+                            width: 44,
+                            height: 44,
+                            borderRadius: 22,
+                            overflow: "hidden",
+                            marginRight: 8,
+                          }}
+                        >
+                          <Image
+                            source={t.avatar}
+                            style={{ width: 44, height: 44 }}
+                          />
+                        </View>
+
+                        <View>
+                          <Text
+                            style={{
+                              color: "#fff",
+                              fontWeight: "600",
+                              fontSize: 16,
+                            }}
+                          >
+                            {t.name}
+                          </Text>
+                          <Text style={{ color: "#cbd5c4", fontSize: 13 }}>
+                            @{t.name.split(" ")[0].toLowerCase()}
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View style={{ flexDirection: "row" }}>
+                        {[...Array(5)].map((_, i) => (
+                          <MaterialIcons
+                            key={i}
+                            name={"star"}
+                            size={14}
+                            color="#fbbf24"
+                          />
+                        ))}
+                      </View>
                     </View>
-                  </View>
 
-                  <View style={{ flexDirection: "row" }}>
-                    {[...Array(5)].map((_, i) => (
-                      <MaterialIcons
-                        key={i}
-                        name={"star"}
-                        size={14}
-                        color="#fbbf24"
-                      />
-                    ))}
-                  </View>
-                </View>
+                    <Text
+                      style={{ color: "#e6f0df", fontSize: 18, lineHeight: 24 }}
+                    >{`"${t.quote}"`}</Text>
+                  </BlurView>
+                ) : (
+                  <View style={styles.testimonialInner}>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        marginBottom: 8,
+                      }}
+                    >
+                      <View
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                      >
+                        <View
+                          style={{
+                            width: 44,
+                            height: 44,
+                            borderRadius: 22,
+                            overflow: "hidden",
+                            marginRight: 8,
+                          }}
+                        >
+                          <Image
+                            source={t.avatar}
+                            style={{ width: 44, height: 44 }}
+                          />
+                        </View>
 
-                <Text
-                  style={{ color: "#e6f0df", fontSize: 15, lineHeight: 20 }}
-                >{`"${t.quote}"`}</Text>
+                        <View>
+                          <Text
+                            style={{
+                              color: "#fff",
+                              fontWeight: "600",
+                              fontSize: 16,
+                            }}
+                          >
+                            {t.name}
+                          </Text>
+                          <Text style={{ color: "#cbd5c4", fontSize: 13 }}>
+                            @{t.name.split(" ")[0].toLowerCase()}
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View style={{ flexDirection: "row" }}>
+                        {[...Array(5)].map((_, i) => (
+                          <MaterialIcons
+                            key={i}
+                            name={"star"}
+                            size={14}
+                            color="#fbbf24"
+                          />
+                        ))}
+                      </View>
+                    </View>
+
+                    <Text
+                      style={{ color: "#e6f0df", fontSize: 18, lineHeight: 24 }}
+                    >{`"${t.quote}"`}</Text>
+                  </View>
+                )}
               </View>
             ))}
           </View>
@@ -250,7 +329,7 @@ export default function RatingScreen({ onBack, onNext }: any) {
           </TouchableOpacity>
         </View>
       </SafeAreaView>
-    </CommitmentBackground>
+    </StarryBackground>
   );
 }
 
@@ -299,15 +378,32 @@ const styles = StyleSheet.create({
   },
   footer: { paddingHorizontal: 20, paddingBottom: 26, paddingTop: 8 },
   testimonialCard: {
+    borderRadius: 16,
+    marginBottom: 12,
+    alignSelf: "center",
+    width: "94%",
+    // subtle outer border to enhance glass effect
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.08)",
+    // shadows
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
+    elevation: 6,
+  },
+  testimonialInner: {
     backgroundColor: "rgba(255,255,255,0.06)",
     borderRadius: 16,
     paddingVertical: 18,
     paddingHorizontal: 14,
-    marginBottom: 12,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.06)",
-    alignSelf: "center",
-    width: "94%",
+    overflow: "hidden",
+  },
+  testimonialBlur: {
+    borderRadius: 16,
+    paddingVertical: 18,
+    paddingHorizontal: 14,
+    overflow: "hidden",
   },
   cta: { paddingVertical: 14, borderRadius: 28, alignItems: "center" },
   ctaText: {

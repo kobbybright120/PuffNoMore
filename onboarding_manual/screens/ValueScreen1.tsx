@@ -124,7 +124,7 @@ const ValueScreen1 = ({ navigation, route, onNext }: any) => {
               </Text>
             ) : (
               <Text key={index}>{part}</Text>
-            )
+            ),
           )}
       </Text>
     );
@@ -205,7 +205,7 @@ const ValueScreen1 = ({ navigation, route, onNext }: any) => {
             <Text style={styles.title}>{currentSlideData.title}</Text>
             {renderDescription(
               currentSlideData.description,
-              currentSlideData.descriptionBold
+              currentSlideData.descriptionBold,
             )}
           </View>
 
@@ -257,20 +257,20 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingHorizontal: 32,
-    paddingVertical: 48,
-    paddingBottom: 120,
+    paddingHorizontal: 20,
+    paddingVertical: 28,
+    paddingBottom: 80,
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
   },
   logoContainer: {
     marginTop: responsiveSize(16, 8),
   },
   logo: {
     color: "white",
-    fontSize: responsiveSize(36, 24),
-    fontWeight: "900",
-    letterSpacing: 2,
+    fontSize: 22,
+    fontWeight: "700",
+    letterSpacing: 1,
     fontFamily: "Inter",
   },
   illustrationContainer: {
@@ -280,8 +280,6 @@ const styles = StyleSheet.create({
     minHeight: responsiveSize(250, 150),
   },
   animationWrapper: {
-    width: responsiveSize(300, 200),
-    height: responsiveSize(300, 200),
     justifyContent: "center",
     alignItems: "center",
   },
@@ -311,21 +309,21 @@ const styles = StyleSheet.create({
   contentContainer: {
     alignItems: "center",
     maxWidth: "85%",
-    marginBottom: responsiveSize(32, 16),
+    marginBottom: responsiveSize(120, 80),
     paddingHorizontal: responsiveSize(16, 8),
   },
   title: {
     color: "white",
-    fontSize: responsiveSize(30, 20),
-    fontWeight: "bold",
-    marginBottom: responsiveSize(24, 16),
+    fontSize: 24,
+    fontWeight: "700",
+    marginBottom: 12,
     textAlign: "center",
     fontFamily: "Inter",
   },
   description: {
     color: "rgba(255, 255, 255, 0.95)",
-    fontSize: responsiveSize(18, 12),
-    lineHeight: responsiveSize(28, 18),
+    fontSize: 16,
+    lineHeight: 24,
     textAlign: "center",
     fontFamily: "Inter",
   },
@@ -334,13 +332,15 @@ const styles = StyleSheet.create({
     fontFamily: "Inter",
   },
   paginationContainer: {
+    position: "absolute",
+    bottom: 96,
+    alignSelf: "center",
     flexDirection: "row",
-    marginBottom: 32,
   },
   dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   dotActive: {
     backgroundColor: "white",
@@ -350,14 +350,14 @@ const styles = StyleSheet.create({
   },
   nextButton: {
     position: "absolute",
-    bottom: 28,
+    bottom: 36,
     alignSelf: "center",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 32,
-    paddingVertical: 16,
-    borderRadius: 50,
+    paddingHorizontal: 26,
+    paddingVertical: 12,
+    borderRadius: 36,
     backgroundColor: "#ffffff",
   },
   nextButtonText: {

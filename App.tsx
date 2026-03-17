@@ -11,6 +11,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { PuffProvider } from "./src/context/PuffContext";
 import AppNavigator from "./src/navigation/AppNavigator";
 
+
 export default function App() {
   const [fontsLoaded] = useFonts({
     Inter_400Regular,

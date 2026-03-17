@@ -22,7 +22,6 @@ const OPTIONS = [
   "Improve Focus & Productivity",
   "Reclaim Your Lifestyle",
   "Enhance Physical Health",
-  "Celebrate Milestones",
 ];
 
 export default function GoalsScreen({ onBack, onNext }: any) {

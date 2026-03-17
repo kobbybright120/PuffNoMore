@@ -21,8 +21,9 @@ const options: string[] = [
 ];
 
 const QuestionScreen4: React.FC<any> = ({
-  question = "Question #4",
-  subtitle = "What form of nicotine do you use?",
+  questionNumber = "Question 4",
+  question = "What form of nicotine do you use?",
+  subtitle,
   onNext,
   onBack,
   current = 4,
@@ -86,8 +87,15 @@ const QuestionScreen4: React.FC<any> = ({
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.questionTitle}>{question}</Text>
-          {subtitle && <Text style={styles.questionText}>{subtitle}</Text>}
+          <Text style={styles.questionTitle}>{questionNumber}</Text>
+          {question && (
+            <Text
+              style={[styles.questionText, { fontSize: 20, fontWeight: "500" }]}
+            >
+              {question}
+            </Text>
+          )}
+          {subtitle && <Text style={styles.questionSubtitle}>{subtitle}</Text>}
 
           <View style={{ flex: 1 }}>
             <ScrollView
@@ -159,27 +167,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  progressContainer: {
-    flex: 1,
-    marginHorizontal: 16,
-    justifyContent: "center",
-  },
+  progressContainer: { flex: 1, paddingHorizontal: 12 },
   progressTrack: {
-    height: 6,
-    backgroundColor: "rgba(255,255,255,0.18)",
+    height: 8,
+    backgroundColor: "rgba(255,255,255,0.08)",
     borderRadius: 999,
     overflow: "hidden",
   },
-  progressFill: {
-    height: 6,
-    backgroundColor: "#90b855",
-    borderRadius: 999,
-  },
+  progressFill: { height: "100%", backgroundColor: "#63a96a" },
   langButton: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 999,
-    backgroundColor: "rgba(255,255,255,0.18)",
+    borderRadius: 20,
+    backgroundColor: "rgba(255,255,255,0.06)",
     marginLeft: 8,
   },
   langText: {
@@ -204,6 +204,16 @@ const styles = StyleSheet.create({
     textAlign: "left",
     alignSelf: "stretch",
     fontFamily: "Inter",
+  },
+  questionSubtitle: {
+    color: "rgba(255,255,255,0.9)",
+    fontSize: 16,
+    marginTop: 6,
+    marginBottom: 12,
+    textAlign: "left",
+    alignSelf: "stretch",
+    fontFamily: "Inter",
+    fontWeight: "400",
   },
   option: {
     flexDirection: "row",

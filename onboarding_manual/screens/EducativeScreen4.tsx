@@ -1,50 +1,29 @@
-import React, { useRef, useEffect } from "react";
+import React from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
-  Animated,
   useWindowDimensions,
   ScrollView,
 } from "react-native";
 import StarryBackground from "../components/StarryBackground";
 import { SafeAreaView } from "react-native-safe-area-context";
-import OnboardingLottie from "../../src/components/OnboardingLottie";
+import LottieView from "lottie-react-native";
 
-interface EducativeScreen1Props {
-  onNext: () => void;
-}
+type Props = {
+  onNext?: () => void;
+  onBack?: () => void;
+};
 
-const EducativeScreen1: React.FC<EducativeScreen1Props> = ({ onNext }) => {
+export default function EducativeScreen4({ onNext }: Props) {
   const { width: deviceWidth, height: deviceHeight } = useWindowDimensions();
-
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 800,
-      useNativeDriver: true,
-    }).start();
-  }, [fadeAnim]);
-
-  const isXs = deviceWidth < 340;
-  const isSm = deviceWidth >= 340 && deviceWidth < 420;
 
   const lottieMaxHeight = Math.round(
     deviceHeight * (deviceHeight < 680 ? 0.22 : 0.32),
   );
   const lottieFromWidth = Math.round(deviceWidth * 0.6);
   const lottieSize = Math.min(320, lottieMaxHeight, lottieFromWidth);
-
-  const titleFont = Math.max(16, Math.round(deviceWidth * 0.06));
-  const bodyFont = Math.max(12, Math.round(deviceWidth * 0.038));
-  const paragraphLineHeight = Math.round(bodyFont * 1.6);
-
-  const progressMaxWidth = Math.max(120, Math.min(deviceWidth - 140, 360));
-  const contentPadding = Math.max(12, Math.round(deviceWidth * 0.05));
-  const footerHeight = 72;
-  const contentPaddingBottom = Math.max(20, footerHeight + 16);
 
   return (
     <StarryBackground>
@@ -53,61 +32,63 @@ const EducativeScreen1: React.FC<EducativeScreen1Props> = ({ onNext }) => {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          {/* Header block styled like EducativeScreen2 */}
           <View style={styles.failHeaderBlock}>
             <Text style={styles.failHeaderTitle}>
-              How This Program Helps You Quit
+              Quitting Doesn’t Mean Losing Much
             </Text>
             <Text style={styles.failHeaderSubtitle}>
-              Many smokers struggle because they try to quit all at once. This
-              program works differently.
+              As ex-smokers ourselves, we know quitting can feel like giving up
+              too much. But it doesn’t have to mean losing your lifestyle or
+              friends.
             </Text>
           </View>
 
-          {/* Chart-like block (Lottie animation) styled like chartContainer */}
           <View style={styles.chartContainer}>
             <View style={{ alignItems: "center", marginBottom: 12 }}>
-              <OnboardingLottie
-                animationKey="tree"
-                style={{ width: 180, height: 180 }}
+              <LottieView
+                source={require("../../assets/animations/extracted/animations/FriendLottie.json")}
+                autoPlay
+                loop
+                style={{ width: lottieSize, height: lottieSize }}
               />
             </View>
-            <Text style={styles.chartTitle}>Gradual Reduction Plan</Text>
+            <Text style={styles.chartTitle}>
+              Keep Your Life. Lose the Habit.
+            </Text>
             <Text style={styles.infoText}>
-              We help you gradually reduce your nicotine intake with a
-              structured plan that slowly decreases the number of cigarettes or
-              nicotine use over time. This method helps your body adjust
-              naturally, making the quitting process easier, more realistic, and
-              more sustainable.
+              PuffNoMore helps you cut back gradually with daily habits that fit
+              your life, so you can enjoy every moment while moving toward
+              freedom.
             </Text>
           </View>
 
-          {/* Info block styled like infoContainer */}
           <View style={styles.infoContainer}>
             <Text style={styles.infoText}>
-              Start your first gentle step today because lasting freedom begins
-              with progress, not pressure.
+              You’ll move forward in small, steady steps that fit into your
+              everyday life, keeping the routines and relationships you care
+              about while gradually leaving nicotine behind.
             </Text>
           </View>
-          {/* spacer so content isn't hidden behind fixed bottom button */}
+
           <View style={{ height: 120 }} />
         </ScrollView>
+
         <View style={styles.bottomTab} pointerEvents="box-none">
           <TouchableOpacity
-            onPress={onNext}
+            onPress={() => onNext && onNext()}
             activeOpacity={0.85}
             style={[
               styles.continueButton,
               { width: Math.min(420, deviceWidth - 48) },
             ]}
           >
-            <Text style={styles.continueButtonText}>GOT IT</Text>
+            <Text style={styles.continueButtonText}>CONTINUE</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
     </StarryBackground>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -217,5 +198,3 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
-
-export default EducativeScreen1;

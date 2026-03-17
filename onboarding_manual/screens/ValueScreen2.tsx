@@ -65,11 +65,9 @@ const ValueScreen2 = ({ navigation, route, onNext }: any) => {
               Welcome to <Text style={styles.titleBold}>PuffNoMore</Text>
             </Text>
             <Text style={styles.description}>
-              With over <Text style={styles.semiBold}>1,000,000 users</Text>,
-              PuffNoMore is <Text style={styles.semiBold}>class-leading</Text>{" "}
-              and based on{" "}
-              <Text style={styles.semiBold}>years of research</Text> and
-              user-interaction.
+              With over 100,000 users starting their journey here, PuffNoMore
+              blends science and empathy to help you reduce smoking step by step
+              restoring health and freedom.
             </Text>
 
             {/* Brand Logos */}
@@ -153,36 +151,35 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingHorizontal: 32,
-    paddingVertical: 48,
-    paddingBottom: 120,
+    paddingHorizontal: 20,
+    paddingVertical: 28,
+    paddingBottom: 80,
     alignItems: "center",
     justifyContent: "space-between",
   },
   logoContainer: {
-    marginTop: 32,
+    marginTop: 16,
   },
   logo: {
     color: "white",
-    fontSize: 28,
-    fontWeight: "900",
-    letterSpacing: 2,
+    fontSize: 22,
+    fontWeight: "700",
+    letterSpacing: 1,
     fontFamily: "Inter",
   },
   illustrationContainer: {
-    flex: 1,
+    flex: 0.55,
     justifyContent: "center",
     alignItems: "center",
+    maxHeight: 360,
   },
   animationWrapper: {
-    width: 280,
-    height: 280,
     justifyContent: "center",
     alignItems: "center",
   },
   lottieAnimation: {
-    width: 280,
-    height: 280,
+    width: 260,
+    height: 260,
   },
   // Placeholder styles (remove when Lottie is added)
   placeholder: {
@@ -203,12 +200,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     maxWidth: 400,
     marginBottom: 24,
+    paddingHorizontal: 20,
   },
   title: {
     color: "white",
-    fontSize: 30,
-    fontWeight: "bold",
-    marginBottom: 24,
+    fontSize: 24,
+    fontWeight: "700",
+    marginBottom: 12,
     textAlign: "center",
     fontFamily: "Inter",
   },
@@ -232,7 +230,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 24,
     marginBottom: 32,
   },
   forbesLogo: {
@@ -241,11 +238,12 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontStyle: "italic",
     fontFamily: "Inter",
+    marginHorizontal: 12,
   },
   weeklyContainer: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 4,
+    marginHorizontal: 12,
   },
   pcBox: {
     width: 24,
@@ -268,6 +266,7 @@ const styles = StyleSheet.create({
   },
   techTimesContainer: {
     alignItems: "flex-start",
+    marginHorizontal: 12,
   },
   techTimesText: {
     color: "white",
@@ -277,13 +276,15 @@ const styles = StyleSheet.create({
     fontFamily: "Inter",
   },
   paginationContainer: {
+    position: "absolute",
+    bottom: 96,
+    alignSelf: "center",
     flexDirection: "row",
-    marginBottom: 32,
   },
   dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
   },
   dotActive: {
     backgroundColor: "white",
@@ -293,14 +294,14 @@ const styles = StyleSheet.create({
   },
   nextButton: {
     position: "absolute",
-    bottom: 28,
+    bottom: 36,
     alignSelf: "center",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    paddingHorizontal: 32,
-    paddingVertical: 16,
-    borderRadius: 50,
+    paddingHorizontal: 26,
+    paddingVertical: 12,
+    borderRadius: 36,
     backgroundColor: "#ffffff",
   },
   nextButtonText: {

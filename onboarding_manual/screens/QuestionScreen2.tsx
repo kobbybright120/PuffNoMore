@@ -13,7 +13,8 @@ import { usePuff } from "../../src/context/PuffContext";
 const { width, height } = Dimensions.get("window");
 
 const QuestionScreen2: React.FC<any> = ({
-  question = "Question #2",
+  questionNumber = "Question 2",
+  question,
   subtitle,
   onNext,
   onBack,
@@ -72,10 +73,15 @@ const QuestionScreen2: React.FC<any> = ({
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.questionTitle}>{question}</Text>
-          {subtitle && (
-            <Text style={styles.questionText}>What is your gender</Text>
+          <Text style={styles.questionTitle}>{questionNumber}</Text>
+          {question && (
+            <Text
+              style={[styles.questionText, { fontSize: 20, fontWeight: "500" }]}
+            >
+              {question}
+            </Text>
           )}
+          {subtitle && <Text style={styles.questionSubtitle}>{subtitle}</Text>}
 
           <View style={{ marginTop: 8 }}>
             {options.map((opt, idx) => {
@@ -160,6 +166,16 @@ const styles = StyleSheet.create({
     textAlign: "left",
     alignSelf: "stretch",
     fontFamily: "Inter",
+  },
+  questionSubtitle: {
+    color: "rgba(255,255,255,0.9)",
+    fontSize: 16,
+    marginTop: 6,
+    marginBottom: 12,
+    textAlign: "left",
+    alignSelf: "stretch",
+    fontFamily: "Inter",
+    fontWeight: "400",
   },
   option: {
     flexDirection: "row",

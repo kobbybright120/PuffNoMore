@@ -24,7 +24,6 @@ export default function CommitmentScreen201({ onBack, onNext }: any) {
             <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
           </TouchableOpacity>
 
-          <Text style={styles.headerTitle}>Take the pledge</Text>
 
           <View style={{ width: 40 }} />
         </View>
@@ -98,12 +97,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  headerTitle: {
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "600",
-    fontFamily: "Inter",
-  },
+
   body: { flex: 1, paddingHorizontal: 20 },
   titleWrap: {
     width: "100%",

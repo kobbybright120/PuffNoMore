@@ -14,8 +14,9 @@ import { usePuff } from "../../src/context/PuffContext";
 const { width, height } = Dimensions.get("window");
 
 const QuestionScreen3: React.FC<any> = ({
-  question = "Question #3",
-  subtitle = "What is your age?",
+  questionNumber = "Question 3",
+  question = "What is your age?",
+  subtitle,
   onNext,
   onBack,
   current = 3,
@@ -79,8 +80,15 @@ const QuestionScreen3: React.FC<any> = ({
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.questionTitle}>{question}</Text>
-          {subtitle && <Text style={styles.questionText}>{subtitle}</Text>}
+          <Text style={styles.questionTitle}>{questionNumber}</Text>
+          {question && (
+            <Text
+              style={[styles.questionText, { fontSize: 20, fontWeight: "500" }]}
+            >
+              {question}
+            </Text>
+          )}
+          {subtitle && <Text style={styles.questionSubtitle}>{subtitle}</Text>}
 
           <View style={{ flex: 1 }}>
             <ScrollView
@@ -173,6 +181,16 @@ const styles = StyleSheet.create({
     textAlign: "left",
     alignSelf: "stretch",
     fontFamily: "Inter",
+  },
+  questionSubtitle: {
+    color: "rgba(255,255,255,0.9)",
+    fontSize: 16,
+    marginTop: 6,
+    marginBottom: 12,
+    textAlign: "left",
+    alignSelf: "stretch",
+    fontFamily: "Inter",
+    fontWeight: "400",
   },
   option: {
     flexDirection: "row",

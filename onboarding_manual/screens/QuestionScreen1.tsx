@@ -18,6 +18,7 @@ const { width, height } = Dimensions.get("window");
 type Star = { x: number; y: number; size: number; opacity: number };
 
 const QuestionScreen1: React.FC<{
+  questionNumber?: string;
   question?: string;
   subtitle?: string;
   onNext: () => void;
@@ -27,7 +28,8 @@ const QuestionScreen1: React.FC<{
   selected?: number | string;
   onSelect?: (val: number | string) => void;
 }> = ({
-  question = "Question #1",
+  questionNumber = "Question 1",
+  question,
   subtitle,
   onNext,
   onBack,
@@ -101,9 +103,15 @@ const QuestionScreen1: React.FC<{
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.questionTitle}>{question}</Text>
-
-          {subtitle && <Text style={styles.questionText}>{subtitle}</Text>}
+          <Text style={styles.questionTitle}>{questionNumber}</Text>
+          {question && (
+            <Text
+              style={[styles.questionText, { fontSize: 20, fontWeight: "500" }]}
+            >
+              {question}
+            </Text>
+          )}
+          {subtitle && <Text style={styles.questionSubtitle}>{subtitle}</Text>}
 
           <View style={{ width: "100%", alignItems: "flex-start" }}>
             <TextInput
@@ -201,6 +209,16 @@ const styles = StyleSheet.create({
     textAlign: "left",
     alignSelf: "stretch",
     fontFamily: "Inter",
+  },
+  questionSubtitle: {
+    color: "rgba(255,255,255,0.9)",
+    fontSize: 16,
+    marginTop: 6,
+    marginBottom: 12,
+    textAlign: "left",
+    alignSelf: "stretch",
+    fontFamily: "Inter",
+    fontWeight: "400",
   },
   nameInput: {
     width: Math.min(520, width - 48),
