@@ -12,6 +12,7 @@ import {
 import { useTheme } from "../context/ThemeContext";
 import { usePuff } from "../context/PuffContext";
 import AppHeader from "../components/AppHeader";
+import { LinearGradient } from "expo-linear-gradient";
 import MotivationCard from "../components/MotivationCard";
 import { useNavigation } from "@react-navigation/native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
@@ -41,18 +42,18 @@ const SupportScreen: React.FC = () => {
 
   const items = useMemo(
     () => [
-      { id: "breathing", title: "Deep Breathing", icon: "air" },
-      { id: "delay", title: "Delay Craving", icon: "timer-sand" },
+      { id: "breathing", title: "Deep Breathing", icon: "lungs" },
+      { id: "delay", title: "Delay Craving", icon: "timer" },
       { id: "tips", title: "Tips & Guides", icon: "book-open-page-variant" },
-      { id: "crusher", title: "Craving Crusher", icon: "apps-box" },
+      { id: "crusher", title: "Craving Crusher", icon: "boxing-glove" },
       { id: "contact", title: "Contact Support", icon: "email" },
     ],
-    []
+    [],
   );
 
   const openEmail = () =>
     Linking.openURL(
-      "mailto:support@puffnomore.app?subject=PuffNoMore%20Support"
+      "mailto:support@puffnomore.app?subject=PuffNoMore%20Support",
     );
 
   const handlePress = (id: string) => {
@@ -95,17 +96,19 @@ const SupportScreen: React.FC = () => {
     }).start(() => setModalVisible(false));
   };
 
-  const isLight = theme.colors.primaryBackground === "#ffffff";
-  const cardBackground = isLight ? theme.colors.primaryBackground : "#0b1519";
+  const isDark =
+    (theme.colors.primaryBackground || "").toLowerCase() === "#0f0f0f";
+  const isLight = !isDark;
+  const cardBackground = isLight ? theme.colors.primaryBackground : "#0f1a1d";
   const cardBorderColor = isLight
     ? theme.colors.primaryGreen + "10"
-    : "rgba(255,255,255,0.08)";
+    : "rgba(255,255,255,0.12)";
   const cardShadow = isLight
     ? theme.shadows.medium
     : {
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.32,
+        shadowOpacity: 0.36,
         shadowRadius: 12,
         elevation: 8,
       };
@@ -123,43 +126,75 @@ const SupportScreen: React.FC = () => {
           Support tools
         </Text>
 
-        <View style={{ marginBottom: theme.spacing.md }}>
+        <View
+          style={[
+            {
+              marginBottom: theme.spacing.md,
+              borderRadius: theme.borderRadius.large,
+              backgroundColor: cardBackground,
+              borderColor: cardBorderColor,
+              borderWidth: isLight ? 0 : 1,
+            },
+            cardShadow,
+          ]}
+        >
           <MotivationCard />
         </View>
 
-        <View style={styles.grid}>
-          {items.map((it) => (
-            <TouchableOpacity
-              key={it.id}
-              style={[
-                styles.miniCard,
-                {
-                  backgroundColor: cardBackground,
-                  borderWidth: isLight ? 0 : 1,
-                  borderColor: cardBorderColor,
-                },
-                cardShadow,
-              ]}
-              onPress={() => handlePress(it.id)}
-              activeOpacity={0.85}
-            >
-              <View
+        <View
+          style={[
+            {
+              borderRadius: theme.borderRadius.large,
+              backgroundColor: cardBackground,
+              borderColor: cardBorderColor,
+              borderWidth: isLight ? 0 : 1,
+              padding: 12,
+              marginBottom: theme.spacing.md,
+            },
+            cardShadow,
+          ]}
+        >
+          <View style={styles.grid}>
+            {items.map((it) => (
+              <TouchableOpacity
+                key={it.id}
                 style={[
-                  styles.iconWrap,
-                  { backgroundColor: theme.colors.primaryGreen },
+                  styles.miniCard,
+                  {
+                    // small inner card look: subtle background + border
+                    backgroundColor: isLight
+                      ? "rgba(0,0,0,0.03)"
+                      : cardBackground,
+                    borderWidth: 1,
+                    borderColor: isLight ? "rgba(0,0,0,0.06)" : cardBorderColor,
+                    padding: 12,
+                    borderRadius: 12,
+                  },
                 ]}
+                onPress={() => handlePress(it.id)}
+                activeOpacity={0.85}
               >
-                <MaterialCommunityIcons
-                  name={it.icon as any}
-                  size={20}
-                  color={theme.colors.primaryBackground}
-                />
-              </View>
-              <Text style={[styles.miniTitle, { color: theme.colors.text }]}>
-                {it.title}
-              </Text>
-            </TouchableOpacity>
-          ))}
+                <LinearGradient
+                  colors={[
+                    theme.colors.primaryGreen,
+                    theme.colors.secondaryGreen,
+                  ]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.iconWrap}
+                >
+                  <MaterialCommunityIcons
+                    name={it.icon as any}
+                    size={22}
+                    color={theme.colors.primaryBackground}
+                  />
+                </LinearGradient>
+                <Text style={[styles.miniTitle, { color: theme.colors.text }]}>
+                  {it.title}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
 
         {reasonRaw ? (
@@ -173,19 +208,68 @@ const SupportScreen: React.FC = () => {
                   borderColor: cardBorderColor,
                   borderWidth: isLight ? 0 : 1,
                 },
+                cardShadow,
               ]}
               onPress={openModal}
             >
-              <Text style={{ color: theme.colors.text, fontWeight: "700" }}>
-                Remember why you're quitting
-              </Text>
-              <Text
-                style={{ color: theme.colors.textSecondary, marginTop: 10 }}
-              >
-                {userName
-                  ? `Tap to see your reason, ${userName}`
-                  : "Tap to see your personal reason to quit"}
-              </Text>
+              <View style={styles.mainCardRow}>
+                <LinearGradient
+                  colors={[
+                    theme.colors.primaryGreen,
+                    theme.colors.secondaryGreen,
+                  ]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.mainCardIcon}
+                >
+                  <MaterialCommunityIcons
+                    name="heart"
+                    size={22}
+                    color={theme.colors.primaryBackground}
+                  />
+                </LinearGradient>
+
+                <View style={styles.mainCardBody}>
+                  <Text
+                    style={[styles.mainCardTitle, { color: theme.colors.text }]}
+                  >
+                    Remember why you're quitting
+                  </Text>
+                  <Text
+                    numberOfLines={2}
+                    ellipsizeMode="tail"
+                    style={[
+                      styles.mainCardReason,
+                      { color: theme.colors.textSecondary },
+                    ]}
+                  >
+                    {String(reasonRaw) ||
+                      (userName
+                        ? `Tap to see your reason, ${userName}`
+                        : "Tap to set your personal reason to quit")}
+                  </Text>
+                </View>
+
+                <View style={styles.mainCardCTAWrap}>
+                  <TouchableOpacity
+                    activeOpacity={0.92}
+                    onPress={openModal}
+                    style={[
+                      styles.mainCardCTAButton,
+                      { backgroundColor: theme.colors.primaryBackground },
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.mainCardCTAButtonText,
+                        { color: theme.colors.primaryGreen },
+                      ]}
+                    >
+                      {reasonRaw ? "View" : "Set"}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             </TouchableOpacity>
           </View>
         ) : null}
@@ -377,7 +461,7 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 12,
     marginBottom: 12,
-    flexDirection: "row",
+    flexDirection: "column",
     alignItems: "center",
   },
   iconWrap: {
@@ -386,11 +470,38 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 12,
+    marginBottom: 10,
   },
-  miniTitle: { fontSize: 15, fontWeight: "600" },
+  miniTitle: { fontSize: 15, fontWeight: "600", textAlign: "center" },
   combined: { paddingHorizontal: 4, marginTop: 12 },
   mainCard: { borderRadius: 12, padding: 12, backgroundColor: "transparent" },
+  mainCardRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  mainCardIcon: {
+    width: 56,
+    height: 56,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 14,
+  },
+  mainCardBody: { flex: 1 },
+  mainCardTitle: { fontSize: 16, fontWeight: "700", marginBottom: 6 },
+  mainCardReason: { fontSize: 14, lineHeight: 18 },
+  mainCardCTAWrap: { marginLeft: 12, alignItems: "flex-end" },
+  mainCardCTA: { fontSize: 13, fontWeight: "700" },
+  mainCardCTAButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 14,
+    borderWidth: 0,
+    minWidth: 72,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  mainCardCTAButtonText: { fontSize: 13, fontWeight: "800" },
 });
 
 export default SupportScreen;
