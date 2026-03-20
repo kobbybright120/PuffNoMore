@@ -17,7 +17,6 @@ import CountdownTimer from "../components/CountdownTimer";
 import { useTheme, useThemeSetter } from "../context/ThemeContext";
 import { usePuff } from "../context/PuffContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-// craving tools removed per request
 
 let Haptics: any;
 try {
@@ -48,7 +47,6 @@ const SettingsScreen: React.FC = () => {
     notificationTimes,
     setNotificationTime,
     setNextSmokeDelayMinutes,
-    setCurrentCigs,
   } = usePuff();
 
   const [localBaseline, setLocalBaseline] = useState<number>(totalPuffs ?? 0);
@@ -190,18 +188,6 @@ const SettingsScreen: React.FC = () => {
   });
 
   const themeSetter = useThemeSetter();
-
-  const saveBaseline = async (n: number) => {
-    const val = Math.max(0, Math.min(50, Math.round(n)));
-    setLocalBaseline(val);
-    await setTotalPuffs(val);
-    try {
-      // keep the live current target in sync so Home updates immediately
-      if (typeof setCurrentCigs === "function") {
-        await setCurrentCigs(Math.max(0, Math.round(val - 2)));
-      }
-    } catch {}
-  };
 
   const toggleNotification = async (key: keyof typeof notificationPrefs) => {
     const next = { ...notificationPrefs, [key]: !notificationPrefs[key] };
@@ -420,73 +406,6 @@ const SettingsScreen: React.FC = () => {
     <View style={styles.container}>
       <AppHeader title="Settings" />
       <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.section}>
-          <View
-            style={[
-              styles.card,
-              {
-                backgroundColor: cardBackground,
-                borderColor: cardBorderColor,
-                ...cardShadow,
-              },
-            ]}
-          >
-            <Text style={styles.title}>Reduction Plan</Text>
-            <View style={styles.row}>
-              <View>
-                <Text style={styles.label}>Daily baseline</Text>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginTop: theme.spacing.xs,
-                  }}
-                >
-                  <Text style={styles.baselineValue}>{localBaseline}</Text>
-                  <Text
-                    style={[
-                      styles.smallLabel,
-                      { marginLeft: theme.spacing.xs, flexShrink: 0 },
-                    ]}
-                  >
-                    cigarettes
-                  </Text>
-                </View>
-              </View>
-              <View style={styles.stepper}>
-                <TouchableOpacity
-                  onPress={() => {
-                    try {
-                      if (hapticsEnabled && Haptics.impactAsync)
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    } catch {}
-                    saveBaseline(Math.max(0, localBaseline - 2));
-                  }}
-                  style={styles.stepBtn}
-                >
-                  <Text style={styles.stepBtnText}>−</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => {
-                    try {
-                      if (hapticsEnabled && Haptics.impactAsync)
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    } catch {}
-                    saveBaseline(localBaseline + 1);
-                  }}
-                  style={[styles.stepBtn, { marginLeft: theme.spacing.sm }]}
-                >
-                  <Text style={styles.stepBtnText}>+</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-
-            {/* Next smoke control moved to its own card below */}
-
-            {/* Smoking times removed from Reduction Plan card */}
-          </View>
-        </View>
-
         <View style={styles.section}>
           <View
             style={[
