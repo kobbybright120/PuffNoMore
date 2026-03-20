@@ -41,8 +41,6 @@ export default function GoalsScreen({ onBack, onNext }: any) {
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
             <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Choose your goals</Text>
-          <View style={styles.headerSpacer} />
         </View>
 
         <ScrollView

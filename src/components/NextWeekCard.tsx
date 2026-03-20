@@ -141,7 +141,7 @@ const NextWeekCard: React.FC<NextWeekCardProps> = ({
         </View>
 
         <Text style={[styles.hint, { color: theme.colors.textSecondary }]}>
-          {`Target: reduce by ${reduction} puff${reduction === 1 ? "" : "s"} this week`}
+          {`Target: reduce by ${reduction} cigarette${reduction === 1 ? "" : "s"} this week`}
         </Text>
       </View>
     </Animated.View>

@@ -1,5 +1,12 @@
 import React from "react";
-import { View, Text, StyleSheet, useWindowDimensions } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  useWindowDimensions,
+  Animated,
+} from "react-native";
+import { useEffect, useRef } from "react";
 import { LinearGradient } from "expo-linear-gradient"; // or 'react-native-linear-gradient'
 import Svg, { Path } from "react-native-svg";
 import { usePuff } from "../context/PuffContext";
@@ -8,50 +15,60 @@ const PlanCard: React.FC = () => {
   const { width: screenWidth } = useWindowDimensions();
   const boxWidth = Math.max(280, Math.min(Math.floor(screenWidth * 0.85), 720));
 
-  const { onboardingResponses } = usePuff();
+  const { onboardingResponses, totalPuffs } = usePuff();
   const userName =
     onboardingResponses &&
     (onboardingResponses.fullName || onboardingResponses.name);
-  // derive plan length from baseline cigarettes per day entered during onboarding
-  const rawBaseline =
-    onboardingResponses?.cigarettesPerDay ??
-    onboardingResponses?.cigarettesPerDay;
-  const baseline = Number(rawBaseline) || 0;
-  const totalWeeks = baseline >= 1 ? Math.max(1, Math.round(baseline)) : 8; // default to 8 weeks
+  // (removed unused baseline/startDate computations)
 
-  // start date: prefer explicit quitTargetDate or onboarding start; fallback to today
-  const rawStart =
-    onboardingResponses?.quitTargetDate || onboardingResponses?.startDate;
-  const startDate = rawStart ? new Date(rawStart) : new Date();
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-  const fmt = (d: Date) =>
-    `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
-
-  const quitDate = new Date(
-    startDate.getTime() + totalWeeks * 7 * 24 * 60 * 60 * 1000
-  );
-  const quitLabel = fmt(quitDate);
-  const reductionStreak = Number(onboardingResponses?.reductionStreakDays) || 0;
-  const daysRemaining = (() => {
+  // Always show the live current local date (user requested).
+  const formattedReductionStart = React.useMemo(() => {
     const today = new Date();
-    const diff = Math.ceil(
-      (quitDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
-    );
-    return diff > 0 ? `${diff} days` : `Today`;
-  })();
+    return today.toLocaleDateString(undefined, {
+      day: "2-digit",
+      month: "2-digit",
+    });
+  }, []);
+
+  // Daily reduction values: startingCigs is baseline entered during onboarding;
+  // currentCigs can be provided by onboardingResponses.currentCigs, else derive
+  // a simple fallback that reduces by 1 cigarette per 2-week reduction cycle.
+  const onboardBaselineRaw = onboardingResponses?.cigarettesPerDay;
+  const providedCurrent = onboardingResponses?.currentCigs;
+
+  // Displayed starting value: prefer onboarding baseline, else fall back to
+  // `totalPuffs` from context so the UI reflects an existing app target.
+  const startingCigs =
+    typeof onboardBaselineRaw === "number" && !isNaN(onboardBaselineRaw)
+      ? onboardBaselineRaw
+      : typeof totalPuffs === "number"
+        ? totalPuffs
+        : 0;
+
+  // derive current cigarettes for display: priority:
+  // 1. explicit `onboardingResponses.currentCigs`
+  // 2. onboarding baseline - 2 (rounded, min 0)
+  // 3. fallback to `totalPuffs`
+  const derivedFromBaseline = Math.max(0, Math.round(startingCigs - 2));
+  const currentCigs =
+    typeof providedCurrent === "number" && !isNaN(providedCurrent)
+      ? providedCurrent
+      : typeof onboardBaselineRaw === "number" && !isNaN(onboardBaselineRaw)
+        ? derivedFromBaseline
+        : typeof totalPuffs === "number"
+          ? totalPuffs
+          : 0;
+
+  // animate number changes (subtle fade-in on update)
+  const anim = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    anim.setValue(0);
+    Animated.timing(anim, {
+      toValue: 1,
+      duration: 420,
+      useNativeDriver: true,
+    }).start();
+  }, [startingCigs, currentCigs]);
 
   return (
     <View style={styles.container}>
@@ -104,10 +121,18 @@ const PlanCard: React.FC = () => {
               </View>
             </View>
 
-            {/* Streak Info */}
-            <View style={styles.streakInfo}>
-              <Text style={styles.streakLabel}>Reduction streak</Text>
-              <Text style={styles.streakValue}>{reductionStreak} days</Text>
+            {/* Daily Reduction Progress (replaces Reduction Streak) */}
+            <View style={styles.reductionProgress}>
+              <Text style={styles.reductionTitle}>Weekly Reduction Plan</Text>
+              <Animated.View style={[styles.reductionRow, { opacity: anim }]}>
+                <Text style={styles.reductionNumbers}>
+                  <Text style={styles.reductionArrow}>↓</Text>
+                  <Text style={styles.reductionNumber}>{startingCigs}</Text>
+                  <Text style={styles.reductionArrow}>→</Text>
+                  <Text style={styles.reductionNumber}>{currentCigs}</Text>
+                </Text>
+                <Text style={styles.reductionUnit}>cigarettes/day</Text>
+              </Animated.View>
             </View>
           </View>
 
@@ -118,9 +143,10 @@ const PlanCard: React.FC = () => {
               <Text style={styles.footerValue}>{userName}</Text>
             </View>
             <View style={styles.footerRight}>
-              <Text style={styles.footerLabel}>Quit Date</Text>
-              <Text style={styles.footerValue}>{daysRemaining}</Text>
-              <Text style={styles.footerSmall}>{quitLabel}</Text>
+              <Text style={styles.footerLabel}>Date Started</Text>
+              <Text style={styles.footerValue}>
+                {formattedReductionStart || "—"}
+              </Text>
             </View>
           </View>
         </LinearGradient>
@@ -216,6 +242,40 @@ const styles = StyleSheet.create({
     fontSize: 48,
     fontWeight: "bold",
   },
+  reductionProgress: {
+    marginTop: 8,
+    alignItems: "flex-start",
+  },
+  reductionTitle: {
+    color: "rgba(255,255,255,0.9)",
+    fontSize: 12,
+    marginBottom: 6,
+  },
+  reductionRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+  },
+  reductionNumbers: {
+    color: "#ffffff",
+    fontSize: 34,
+    fontWeight: "800",
+  },
+  reductionNumber: {
+    color: "#ffffff",
+    fontSize: 34,
+    fontWeight: "900",
+  },
+  reductionArrow: {
+    color: "#ffffff",
+    fontSize: 24,
+    marginHorizontal: 6,
+  },
+  reductionUnit: {
+    color: "rgba(255,255,255,0.85)",
+    fontSize: 12,
+    marginLeft: 6,
+  },
+
   streakSub: {
     color: "rgba(255,255,255,0.9)",
     fontSize: 12,
@@ -231,18 +291,14 @@ const styles = StyleSheet.create({
   },
   footerLabel: {
     color: "#9CA3AF",
-    fontSize: 12,
-    marginBottom: 2,
+    fontSize: 13,
+    marginBottom: 4,
+    fontWeight: "600",
   },
   footerValue: {
     color: "#ffffff",
-    fontSize: 18,
-    fontWeight: "500",
-  },
-  footerSmall: {
-    color: "rgba(255,255,255,0.85)",
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: 20,
+    fontWeight: "700",
   },
   footerRight: {
     alignItems: "flex-end",

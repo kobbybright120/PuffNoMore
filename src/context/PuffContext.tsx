@@ -75,6 +75,8 @@ interface PuffContextType {
   setOnboardingCompleted: (v: boolean) => Promise<void>;
   onboardingResponses: Record<string, any>;
   saveOnboardingAnswer: (key: string, value: any) => Promise<void>;
+  currentCigs: number | null;
+  setCurrentCigs: (n: number | null) => Promise<void>;
 }
 
 const PuffContext = createContext<PuffContextType | undefined>(undefined);
@@ -93,10 +95,7 @@ export const PuffProvider: React.FC<{ children: ReactNode }> = ({
   const todayIndex = new Date().getDay();
   const [weeklyCounts, setWeeklyCounts] = useState<number[]>(() => {
     // initialize with zeros; in future this could load from storage
-    const arr = new Array(7).fill(0);
-    // start with 1 puff today to match previous default behavior
-    arr[todayIndex] = 1;
-    return arr;
+    return new Array(7).fill(0);
   });
 
   // user-configurable daily baseline (persisted)
@@ -132,7 +131,7 @@ export const PuffProvider: React.FC<{ children: ReactNode }> = ({
   const [onboardingResponses, setOnboardingResponsesState] = useState<
     Record<string, any>
   >(() => ({}));
-  const [userName, setUserNameState] = useState<string | null>(() => null);
+  const [, setUserNameState] = useState<string | null>(() => null);
   const [preferredCravingTools, setPreferredCravingToolsState] = useState<
     string[]
   >(["Breathing", "Meditation", "Bubble Crusher", "Delay Timer"]);
@@ -151,6 +150,12 @@ export const PuffProvider: React.FC<{ children: ReactNode }> = ({
   const [nextSmokeDelayMinutes, setNextSmokeDelayMinutesState] = useState<
     number | null
   >(() => null);
+
+  // current target (e.g. baseline minus reduction step). Persisted so Home can
+  // display the live plan target independent of the original baseline.
+  const [currentCigs, setCurrentCigsState] = useState<number | null>(
+    () => null,
+  );
   // configured interval (minutes) as chosen by the user when setting the timer
   const [nextSmokeIntervalMinutes, setNextSmokeIntervalMinutesState] = useState<
     number | null
@@ -177,6 +182,15 @@ export const PuffProvider: React.FC<{ children: ReactNode }> = ({
     } catch {
       // ignore persistence errors
     }
+  };
+
+  const CURRENT_CIGS_KEY = "puff:currentCigs";
+  const setCurrentCigs = async (n: number | null) => {
+    setCurrentCigsState(n);
+    try {
+      if (n == null) await AsyncStorage.removeItem(CURRENT_CIGS_KEY);
+      else await AsyncStorage.setItem(CURRENT_CIGS_KEY, String(n));
+    } catch {}
   };
 
   const setNotificationPrefs = async (v: {
@@ -254,7 +268,20 @@ export const PuffProvider: React.FC<{ children: ReactNode }> = ({
 
   const saveOnboardingAnswer = async (key: string, value: any) => {
     try {
-      const next = { ...onboardingResponses, [key]: value };
+      // When saving the user's baseline (cigarettesPerDay) we also want to
+      // ensure the reduction start date is recorded. This makes the "Date
+      // Started" display dynamic per user (the day they provided their
+      // baseline) instead of relying on a hardcoded value.
+      let next = { ...onboardingResponses, [key]: value } as any;
+      if (key === "cigarettesPerDay") {
+        // If there's no existing reductionStartDate, set it to now.
+        if (!next.reductionStartDate) {
+          try {
+            const iso = new Date().toISOString();
+            next = { ...next, reductionStartDate: iso };
+          } catch {}
+        }
+      }
       setOnboardingResponsesState(next);
       await AsyncStorage.setItem(ONBOARDING_KEY, JSON.stringify(next));
       // If the onboarding answer is the user's name, also persist as top-level userName
@@ -264,20 +291,20 @@ export const PuffProvider: React.FC<{ children: ReactNode }> = ({
           await AsyncStorage.setItem(USER_NAME_KEY, String(value || ""));
         } catch {}
       }
+      // if user provided cigarettesPerDay during onboarding, set a live current target
+      if (key === "cigarettesPerDay") {
+        try {
+          const n = Number(value) || 0;
+          const derived = Math.max(0, Math.round(n - 2));
+          await setCurrentCigs(derived);
+        } catch {}
+      }
       // analytics event could be emitted here
     } catch {}
   };
 
-  const setUserName = async (name: string | null) => {
-    try {
-      setUserNameState(name);
-      if (name === null) {
-        await AsyncStorage.removeItem(USER_NAME_KEY);
-      } else {
-        await AsyncStorage.setItem(USER_NAME_KEY, String(name));
-      }
-    } catch {}
-  };
+  // `setUserName` helper removed; callers should use `saveOnboardingAnswer`
+  // or `setUserNameState` directly if needed.
 
   const setOnboardingCompleted = async (v: boolean) => {
     try {
@@ -294,9 +321,46 @@ export const PuffProvider: React.FC<{ children: ReactNode }> = ({
         const rawName = await AsyncStorage.getItem(USER_NAME_KEY);
         if (rawName) setUserNameState(rawName);
         const rawOn = await AsyncStorage.getItem(ONBOARDING_KEY);
-        if (rawOn) setOnboardingResponsesState(JSON.parse(rawOn));
+        if (rawOn) {
+          try {
+            const parsed = JSON.parse(rawOn) as Record<string, any>;
+            // If a reductionStartDate is missing, persist today's date (date-only)
+            if (!parsed.reductionStartDate) {
+              try {
+                const today = new Date();
+                const isoDateOnly = today.toISOString().slice(0, 10); // YYYY-MM-DD
+                const next = { ...parsed, reductionStartDate: isoDateOnly };
+                setOnboardingResponsesState(next);
+                await AsyncStorage.setItem(
+                  ONBOARDING_KEY,
+                  JSON.stringify(next),
+                );
+              } catch {
+                // fallback to parsed if persistence fails
+                setOnboardingResponsesState(parsed);
+              }
+            } else {
+              setOnboardingResponsesState(parsed);
+            }
+          } catch {
+            // if parsing fails, ignore and don't crash
+            try {
+              setOnboardingResponsesState(JSON.parse(rawOn));
+            } catch {
+              setOnboardingResponsesState({});
+            }
+          }
+        }
         const rawComplete = await AsyncStorage.getItem(ONBOARDING_COMPLETE_KEY);
         if (rawComplete) setOnboardingCompletedState(JSON.parse(rawComplete));
+        // load persisted current target if set
+        try {
+          const rawCurrent = await AsyncStorage.getItem(CURRENT_CIGS_KEY);
+          if (rawCurrent != null) {
+            const pc = parseInt(rawCurrent, 10);
+            if (!isNaN(pc)) setCurrentCigsState(pc);
+          }
+        } catch {}
       } catch {}
     })();
 
@@ -720,16 +784,78 @@ export const PuffProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   const resetData = async () => {
-    // reset weekly counts to zeros and clear persisted storage
-    const zeros = new Array(7).fill(0);
-    setWeeklyCounts(zeros);
-    setEvents([]);
+    // Reset in-memory state to defaults and remove all persisted keys
     try {
-      await AsyncStorage.removeItem(STORAGE_KEY);
-      await AsyncStorage.removeItem(LAST_UPDATED_KEY);
-      await AsyncStorage.removeItem(EVENTS_KEY);
+      const zeros = new Array(7).fill(0);
+      setWeeklyCounts(zeros);
+      setEvents([]);
+
+      // reset baseline and history
+      try {
+        setTotalPuffsState(6);
+      } catch {}
+      try {
+        setBaseHistory([]);
+      } catch {}
+
+      // reset onboarding and user info
+      try {
+        setOnboardingResponsesState({});
+        setOnboardingCompletedState(false);
+        setUserNameState(null);
+      } catch {}
+
+      // reset preferences and timers
+      try {
+        setPreferredCravingToolsState([
+          "Breathing",
+          "Meditation",
+          "Bubble Crusher",
+          "Delay Timer",
+        ]);
+        setHapticsEnabledState(true);
+        setSmokingTimesState([]);
+        setNextSmokeDelayMinutesState(null);
+        setNextSmokeIntervalMinutesState(null);
+      } catch {}
+
+      // reset current target
+      try {
+        setCurrentCigsState(null);
+      } catch {}
+
+      // remove persisted keys (best-effort)
+      try {
+        const keysToRemove = [
+          STORAGE_KEY,
+          LAST_UPDATED_KEY,
+          EVENTS_KEY,
+          BASE_KEY,
+          BASE_HISTORY_KEY,
+          ONBOARDING_KEY,
+          ONBOARDING_COMPLETE_KEY,
+          USER_NAME_KEY,
+          "puff:preferredTools",
+          "puff:notificationPrefs",
+          "puff:smokingTimes",
+          NEXT_SMOKE_KEY,
+          NEXT_SMOKE_TS_KEY,
+          NEXT_SMOKE_INTERVAL_KEY,
+          "puff:nextSmokeTarget",
+          "puff:baseIntake",
+          "puff:baseHistory",
+          "puff:currentCigs",
+          "app:hapticsEnabled",
+          "app:reduceMotion",
+        ];
+        for (const k of keysToRemove) {
+          try {
+            await AsyncStorage.removeItem(k);
+          } catch {}
+        }
+      } catch {}
     } catch {
-      // ignore storage errors
+      // ignore any reset errors
     }
   };
 
@@ -796,7 +922,8 @@ export const PuffProvider: React.FC<{ children: ReactNode }> = ({
         // make a best-effort evaluation of the week that just completed
         // (represented by `parsed`) against the baseline at that time
         // (`parsedBase`). If the user stayed within the baseline every day
-        // of that week, reduce the baseline by 1 (min 0).
+        // of that week, reduce the baseline by 2 (min 0) to match the
+        // active-target derivation used elsewhere.
         if (deltaDays > 0) {
           try {
             const baseToCheck =
@@ -809,7 +936,7 @@ export const PuffProvider: React.FC<{ children: ReactNode }> = ({
               parsed.length === 7 &&
               parsed.every((c) => c <= baseToCheck)
             ) {
-              const nextBase = Math.max(0, baseToCheck - 1);
+              const nextBase = Math.max(0, baseToCheck - 2);
               setTotalPuffsState(nextBase);
               try {
                 await AsyncStorage.setItem(BASE_KEY, String(nextBase));
@@ -1096,6 +1223,8 @@ export const PuffProvider: React.FC<{ children: ReactNode }> = ({
         setOnboardingCompleted,
         onboardingResponses,
         saveOnboardingAnswer,
+        currentCigs,
+        setCurrentCigs,
       }}
     >
       {children}

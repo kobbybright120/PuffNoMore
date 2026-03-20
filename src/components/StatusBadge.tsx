@@ -63,19 +63,21 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
         end={{ x: 1, y: 1 }}
         style={styles.container}
       >
-        <>
-          <Ionicons
-            name={iconName as any}
-            size={16}
-            color={theme.colors.primaryBackground}
-            style={styles.icon}
-          />
-          <Text
-            style={[styles.text, { color: theme.colors.primaryBackground }]}
+        <View style={styles.iconWrap}>
+          <LinearGradient
+            colors={gradientColors as any}
+            style={styles.iconCircle}
           >
-            {status}
-          </Text>
-        </>
+            <Ionicons
+              name={iconName as any}
+              size={12}
+              color={theme.colors.primaryBackground}
+            />
+          </LinearGradient>
+        </View>
+        <Text style={[styles.text, { color: theme.colors.primaryBackground }]}>
+          {status}
+        </Text>
       </LinearGradient>
     </Animated.View>
   );
@@ -102,6 +104,19 @@ const styles = StyleSheet.create({
   icon: {
     marginRight: 8,
     opacity: 0.95,
+  },
+  iconWrap: {
+    marginRight: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  iconCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
   },
   text: {
     fontSize: 16,

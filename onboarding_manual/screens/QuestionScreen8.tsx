@@ -56,17 +56,14 @@ const QuestionScreen8: React.FC<any> = ({
               </View>
             </View>
 
-            <TouchableOpacity style={styles.langButton}>
-              <Text style={styles.langText}>EN</Text>
-            </TouchableOpacity>
+            {/* language selector hidden on this screen */}
           </View>
 
           <Text style={styles.questionTitle}>{questionNumber}</Text>
           <Text
             style={[styles.questionText, { fontSize: 20, fontWeight: "500" }]}
           >
-            How ready are you to gradually cut down until you quit for
-            good?
+            How ready are you to gradually cut down until you quit for good?
           </Text>
           <Text style={styles.questionSubtitle}>
             Your readiness today is the seed. We’ll help it grow into freedom.
@@ -125,13 +122,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   progressFill: { height: "100%", backgroundColor: "#63a96a" },
-  langButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.06)",
-  },
-  langText: { color: "#fff", fontWeight: "700" },
+  /* langButton removed for screens other than QuestionScreen1 */
   questionTitle: {
     color: "#fff",
     fontSize: 28,

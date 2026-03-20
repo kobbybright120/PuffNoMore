@@ -6,11 +6,9 @@ import {
   Inter_400Regular,
   Inter_700Bold,
 } from "@expo-google-fonts/inter";
-import { ThemeProvider } from "./src/context/ThemeContext";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { PuffProvider } from "./src/context/PuffContext";
 import AppNavigator from "./src/navigation/AppNavigator";
-
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -28,14 +26,12 @@ export default function App() {
 
   return (
     <PuffProvider>
-      <ThemeProvider>
-        <SafeAreaProvider>
-          <NavigationContainer>
-            <AppNavigator />
-            <StatusBar style="auto" />
-          </NavigationContainer>
-        </SafeAreaProvider>
-      </ThemeProvider>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <AppNavigator />
+          <StatusBar style="auto" />
+        </NavigationContainer>
+      </SafeAreaProvider>
     </PuffProvider>
   );
 }

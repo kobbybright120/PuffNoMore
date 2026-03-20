@@ -11,6 +11,7 @@ import { useTheme } from "../context/ThemeContext";
 import { usePuff } from "../context/PuffContext";
 import { BarChart } from "react-native-gifted-charts";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import AppHeader from "../components/AppHeader";
 import * as SafeHaptics from "../utils/haptics";
 
@@ -75,7 +76,7 @@ const StatsScreen: React.FC = () => {
       const weekMs = dayMs * 7;
       const numWeeks = Math.max(
         1,
-        Math.floor((nowStart.getTime() - minDate.getTime()) / weekMs) + 1
+        Math.floor((nowStart.getTime() - minDate.getTime()) / weekMs) + 1,
       );
       const byWeek = new Array(numWeeks).fill(0);
       const weekLabels: string[] = [];
@@ -300,6 +301,15 @@ const StatsScreen: React.FC = () => {
       padding: theme.spacing.xs,
       borderRadius: theme.borderRadius.small,
     },
+    chartHeaderIconCircle: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      alignItems: "center",
+      justifyContent: "center",
+      overflow: "hidden",
+      marginRight: theme.spacing.xs,
+    },
     chartHeaderActionText: {
       fontSize: theme.fonts.size.small,
       color: theme.colors.textSecondary,
@@ -353,10 +363,10 @@ const StatsScreen: React.FC = () => {
       width: 48,
       height: 48,
       borderRadius: 12,
-      backgroundColor: theme.colors.primaryGreen,
       justifyContent: "center",
       alignItems: "center",
       marginRight: theme.spacing.md,
+      overflow: "hidden",
     },
     cumIcon: { fontSize: 22 },
     cumMainText: {
@@ -415,13 +425,13 @@ const StatsScreen: React.FC = () => {
   const spacingRatio = 0.4; // spacing relative to bar width
   // compute a bar width that guarantees total fits: total = bar*(n + (n-1)*r)
   let barWidthComputed = Math.floor(
-    availableWidth / (itemCount + (itemCount - 1) * spacingRatio)
+    availableWidth / (itemCount + (itemCount - 1) * spacingRatio),
   );
   // clamp to reasonable bounds so bars are not tiny or enormous
   barWidthComputed = Math.max(8, Math.min(barWidthComputed, 32));
   const spacingComputed = Math.max(
     6,
-    Math.floor(barWidthComputed * spacingRatio)
+    Math.floor(barWidthComputed * spacingRatio),
   );
   const chartWidth = availableWidth; // force chart to fit container (no horizontal scroll)
 
@@ -432,7 +442,7 @@ const StatsScreen: React.FC = () => {
   const yAxisSections = 4;
   const maxValue = Math.max(
     1,
-    ...chartData.map((c) => (typeof c.value === "number" ? c.value : 0))
+    ...chartData.map((c) => (typeof c.value === "number" ? c.value : 0)),
   );
   const yStep = Math.max(1, Math.ceil(maxValue / yAxisSections));
   // Compute chart max as the step * sections so grid lines align with labels
@@ -458,13 +468,13 @@ const StatsScreen: React.FC = () => {
   todayMid.setHours(0, 0, 0, 0);
   const daysCovered = Math.max(
     1,
-    Math.floor((Number(todayMid) - Number(startDate)) / dayMs) + 1
+    Math.floor((Number(todayMid) - Number(startDate)) / dayMs) + 1,
   );
 
   // ensure baseHistory is sorted ascending by timestamp
   const sortedBaseHistory = Array.isArray(baseHistory)
     ? [...baseHistory].sort(
-        (a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime()
+        (a, b) => new Date(a.ts).getTime() - new Date(b.ts).getTime(),
       )
     : [];
 
@@ -552,13 +562,19 @@ const StatsScreen: React.FC = () => {
           >
             <View style={styles.cumAccent} />
             <View style={styles.cumLeft}>
-              <View style={styles.cumIconWrap}>
+              <LinearGradient
+                colors={[
+                  theme.colors.primaryGreen,
+                  theme.colors.secondaryGreen,
+                ]}
+                style={styles.cumIconWrap}
+              >
                 <MaterialCommunityIcons
                   name="smoking-off"
                   size={22}
                   color={theme.colors.primaryBackground}
                 />
-              </View>
+              </LinearGradient>
               <View style={styles.cumTextWrap}>
                 <Text
                   style={styles.cumMainText}
@@ -652,11 +668,19 @@ const StatsScreen: React.FC = () => {
           <View style={styles.chartHeader}>
             <Text style={styles.chartHeaderTitle}>Usage</Text>
             <View style={styles.chartHeaderAction}>
-              <MaterialCommunityIcons
-                name="calendar"
-                size={16}
-                color={theme.colors.textSecondary}
-              />
+              <LinearGradient
+                colors={[
+                  theme.colors.primaryGreen,
+                  theme.colors.secondaryGreen,
+                ]}
+                style={styles.chartHeaderIconCircle}
+              >
+                <MaterialCommunityIcons
+                  name="calendar"
+                  size={16}
+                  color={theme.colors.primaryBackground}
+                />
+              </LinearGradient>
               <Text style={styles.chartHeaderActionText}>
                 {RANGE_LABELS[range]}
               </Text>
@@ -762,7 +786,7 @@ const StatsScreen: React.FC = () => {
                             : "rgba(255,255,255,0.95)",
                         fontSize: Math.min(
                           14,
-                          Math.max(10, Math.floor(barWidthComputed / 2.5))
+                          Math.max(10, Math.floor(barWidthComputed / 2.5)),
                         ),
                         fontFamily: theme.fonts.family.bold,
                       }}
@@ -810,10 +834,10 @@ const StatsScreen: React.FC = () => {
               // Separate past days (exclude today) from today's provisional state
               const pastCounts = counts.slice(0, todayIdx);
               const pastSuccessful = pastCounts.filter(
-                (c) => c > 0 && c <= baseline
+                (c) => c > 0 && c <= baseline,
               ).length;
               const pastOversmoked = pastCounts.filter(
-                (c) => c > baseline
+                (c) => c > baseline,
               ).length;
               const todayCount = counts[todayIdx] ?? 0;
               const todayOversmoked = todayCount > baseline;
@@ -837,8 +861,8 @@ const StatsScreen: React.FC = () => {
                   ? c === 0
                     ? neutralColor
                     : onTarget
-                    ? theme.colors.primaryGreen
-                    : "#fd9308"
+                      ? theme.colors.primaryGreen
+                      : "#fd9308"
                   : neutralColor;
                 return (
                   <View
@@ -931,7 +955,7 @@ const StatsScreen: React.FC = () => {
                         if (todayProvisionalOnTarget) {
                           const remainingIfTodayCounts = Math.max(
                             0,
-                            7 - (pastSuccessful + 1)
+                            7 - (pastSuccessful + 1),
                           );
                           return `Nice you've met your target on ${pastSuccessful} day${
                             pastSuccessful === 1 ? "" : "s"

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Pressable } from "react-native";
 import { useTheme } from "../context/ThemeContext";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 
 interface AppHeaderProps {
   title: string;
@@ -69,6 +70,14 @@ const AppHeader: React.FC<AppHeaderProps> = ({
       justifyContent: "center",
       alignItems: "center",
     },
+    gradientCircle: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      justifyContent: "center",
+      alignItems: "center",
+      overflow: "hidden",
+    },
   });
 
   const [displayedTitle, setDisplayedTitle] = useState(title);
@@ -108,17 +117,16 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           style={styles.backTouch}
           accessibilityRole="button"
         >
-          <Ionicons
-            name="chevron-back"
-            size={theme.fonts.size.xlarge}
-            color={
-              titleColor
-                ? titleColor
-                : transparent
-                  ? theme.colors.text
-                  : theme.colors.primaryGreen
-            }
-          />
+          <LinearGradient
+            colors={[theme.colors.primaryGreen, theme.colors.secondaryGreen]}
+            style={styles.gradientCircle}
+          >
+            <Ionicons
+              name="chevron-back"
+              size={theme.fonts.size.xlarge}
+              color={theme.colors.primaryBackground}
+            />
+          </LinearGradient>
         </Pressable>
       ) : null}
       {onAlert ? (
@@ -127,17 +135,16 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           style={styles.alertTouch}
           accessibilityRole="button"
         >
-          <Ionicons
-            name="alert-circle-outline"
-            size={theme.fonts.size.xlarge}
-            color={
-              titleColor
-                ? titleColor
-                : transparent
-                  ? theme.colors.text
-                  : theme.colors.primaryGreen
-            }
-          />
+          <LinearGradient
+            colors={[theme.colors.primaryGreen, theme.colors.secondaryGreen]}
+            style={styles.gradientCircle}
+          >
+            <Ionicons
+              name="alert-circle-outline"
+              size={theme.fonts.size.xlarge}
+              color={theme.colors.primaryBackground}
+            />
+          </LinearGradient>
         </Pressable>
       ) : null}
       <Text

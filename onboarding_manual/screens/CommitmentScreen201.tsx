@@ -9,21 +9,20 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import CommitmentBackground from "../../src/components/CommitmentBackground202";
+import StarryBackground from "../components/StarryBackground";
 import CommitmentScreen from "../../src/screens/CommitmentScreen";
 
 export default function CommitmentScreen201({ onBack, onNext }: any) {
   const savedRef = useRef<any>(null);
 
   return (
-    <CommitmentBackground>
+    <StarryBackground>
       <StatusBar barStyle="light-content" />
       <SafeAreaView style={{ flex: 1 }}>
         <View style={styles.header}>
           <TouchableOpacity onPress={onBack} style={styles.backButton}>
             <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
           </TouchableOpacity>
-
 
           <View style={{ width: 40 }} />
         </View>
@@ -79,7 +78,7 @@ export default function CommitmentScreen201({ onBack, onNext }: any) {
           </TouchableOpacity>
         </View>
       </SafeAreaView>
-    </CommitmentBackground>
+    </StarryBackground>
   );
 }
 

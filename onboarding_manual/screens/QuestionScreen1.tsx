@@ -9,13 +9,12 @@ import {
   TextInput,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { usePuff } from "../../src/context/PuffContext";
 import GreenGradientBackground from "../components/GreenGradientBackground";
 
 const { width, height } = Dimensions.get("window");
 
-type Star = { x: number; y: number; size: number; opacity: number };
+// removed unused local types
 
 const QuestionScreen1: React.FC<{
   questionNumber?: string;
@@ -36,13 +35,8 @@ const QuestionScreen1: React.FC<{
   current = 0,
   total = 10,
   selected,
-  onSelect,
+  onSelect: _onSelect,
 }) => {
-  const [stars, setStars] = useState<Star[]>([]);
-
-  const [selectedLocal, setSelectedLocal] = useState<
-    number | string | undefined
-  >(selected);
   const [name, setName] = useState<string>(() =>
     selected && typeof selected === "string" ? String(selected) : "",
   );
@@ -50,18 +44,8 @@ const QuestionScreen1: React.FC<{
   const navigateTimer = useRef<any>(null);
 
   useEffect(() => {
-    setSelectedLocal(selected);
+    // no-op for now: preserved lifecycle
   }, [selected]);
-
-  useEffect(() => {
-    const newStars = Array.from({ length: 120 }, () => ({
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 2 + 0.5,
-      opacity: Math.random() * 0.7 + 0.3,
-    }));
-    setStars(newStars);
-  }, []);
 
   useEffect(() => {
     return () => {
@@ -125,7 +109,11 @@ const QuestionScreen1: React.FC<{
               onSubmitEditing={async () => {
                 // save and continue
                 try {
-                  await puff.saveOnboardingAnswer("name", name);
+                  const val = name.trim();
+                  if (val) {
+                    await puff.saveOnboardingAnswer("name", val);
+                    await puff.saveOnboardingAnswer("fullName", val);
+                  }
                 } catch {}
                 onNext();
               }}
@@ -141,8 +129,11 @@ const QuestionScreen1: React.FC<{
             style={[styles.skipButton, { opacity: name.trim() ? 1 : 0.6 }]}
             onPress={async () => {
               try {
-                if (name.trim())
-                  await puff.saveOnboardingAnswer("name", name.trim());
+                const val = name.trim();
+                if (val) {
+                  await puff.saveOnboardingAnswer("name", val);
+                  await puff.saveOnboardingAnswer("fullName", val);
+                }
               } catch {}
               onNext();
             }}

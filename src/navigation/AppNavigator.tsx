@@ -1,6 +1,7 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import BottomTabNavigator from "./BottomTabNavigator";
+import { ThemeProvider } from "../context/ThemeContext";
 import OnboardingNavigator from "./OnboardingNavigator";
 import SplashScreen from "../screens/SplashScreen";
 import EducationDetailScreen from "../screens/EducationDetailScreen";
@@ -12,6 +13,12 @@ import CravingCrusherScreen from "../screens/CravingCrusherScreen";
 const Stack = createNativeStackNavigator();
 
 const AppNavigator: React.FC = () => {
+  const ThemedRootTabs: React.FC = () => (
+    <ThemeProvider>
+      <BottomTabNavigator />
+    </ThemeProvider>
+  );
+
   return (
     <Stack.Navigator
       initialRouteName="Splash"
@@ -19,7 +26,7 @@ const AppNavigator: React.FC = () => {
     >
       <Stack.Screen name="Splash" component={SplashScreen} />
       <Stack.Screen name="Onboarding" component={OnboardingNavigator} />
-      <Stack.Screen name="RootTabs" component={BottomTabNavigator} />
+      <Stack.Screen name="RootTabs" component={ThemedRootTabs} />
       <Stack.Screen name="CravingCrusher" component={CravingCrusherScreen} />
       <Stack.Screen name="TipsAndGuides" component={TipsAndGuidesScreen} />
       <Stack.Screen name="DelayCraving" component={DelayCravingScreen} />

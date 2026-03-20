@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, ScrollView, StyleSheet } from "react-native";
+import { View, ScrollView, StyleSheet, Text } from "react-native";
 import { useTheme } from "../context/ThemeContext";
 import { usePuff } from "../context/PuffContext";
 import AppHeader from "../components/AppHeader";
@@ -11,7 +11,13 @@ import NextWeekCard from "../components/NextWeekCard";
 
 const HomeScreen: React.FC = () => {
   const theme = useTheme();
-  const { puffsUsed, totalPuffs, onboardingResponses } = usePuff();
+  const {
+    puffsUsed,
+    totalPuffs,
+    onboardingResponses,
+    currentCigs,
+    baseHistory,
+  } = usePuff();
   const getGreeting = (date = new Date()) => {
     const h = date.getHours();
     if (h >= 5 && h < 12) return "Good Morning";
@@ -104,10 +110,34 @@ const HomeScreen: React.FC = () => {
 
           const info = getSupportiveMessage(puffsUsed, totalPuffs);
 
-          // compute next week's goal by reducing daily target by 1 (min 0)
+          // Determine original baseline (from onboarding or base history)
+          const originalBaseline = (() => {
+            const fromOnboard = onboardingResponses?.cigarettesPerDay;
+            if (typeof fromOnboard === "number" && !isNaN(fromOnboard))
+              return fromOnboard;
+            if (Array.isArray(baseHistory) && baseHistory.length > 0) {
+              const first = baseHistory[0];
+              if (first && typeof first.base === "number") return first.base;
+            }
+            return null;
+          })();
+
+          // compute next week's goal by reducing daily target by 2 (min 0)
+          // effectiveCurrent: prefer explicit `currentCigs`; otherwise if we
+          // have an original baseline (e.g. onboarding input) assume the user
+          // has already stepped down once and use baseline-2 as their
+          // current target. Fallback to `totalPuffs` when nothing else exists.
+          const effectiveCurrent = (() => {
+            if (typeof currentCigs === "number" && currentCigs >= 0)
+              return currentCigs;
+            if (typeof originalBaseline === "number")
+              return Math.max(0, Math.round(originalBaseline - 2));
+            return totalPuffs;
+          })();
+
           const nextWeekGoal =
-            typeof totalPuffs === "number" && totalPuffs > 0
-              ? Math.max(0, totalPuffs - 1)
+            typeof effectiveCurrent === "number" && effectiveCurrent > 0
+              ? Math.max(0, effectiveCurrent - 2)
               : undefined;
 
           const nameProvided =
@@ -126,13 +156,25 @@ const HomeScreen: React.FC = () => {
               {/* countdown moved into the StatusBadge inside ProgressCard */}
 
               <View style={{ marginTop: theme.spacing.sm }}>
-                <ProgressCard used={puffsUsed} total={totalPuffs} />
+                <ProgressCard used={puffsUsed} total={effectiveCurrent} />
+                {originalBaseline != null ? (
+                  <Text
+                    style={{
+                      color: theme.colors.textSecondary || theme.colors.text,
+                      fontSize: theme.fonts.size.small,
+                      marginTop: theme.spacing.xs,
+                      textAlign: "center",
+                    }}
+                  >
+                    {`Started: ${originalBaseline}/day`}
+                  </Text>
+                ) : null}
                 {typeof nextWeekGoal === "number" ? (
                   <View style={{ marginTop: theme.spacing.sm }}>
                     <NextWeekCard
                       nextGoal={nextWeekGoal}
-                      reduction={1}
-                      currentGoal={totalPuffs}
+                      reduction={2}
+                      currentGoal={effectiveCurrent}
                     />
                   </View>
                 ) : null}

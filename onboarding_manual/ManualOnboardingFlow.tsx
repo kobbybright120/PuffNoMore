@@ -2,13 +2,14 @@ import React, { useState, useRef, useEffect } from "react";
 import { View, Animated, Dimensions, StyleSheet, Easing } from "react-native";
 import WelcomeScreen from "./screens/WelcomeScreen";
 
-import { useNavigation, useRoute } from "@react-navigation/native";
+import { useRoute } from "@react-navigation/native";
 import QuestionScreen1 from "./screens/QuestionScreen1";
 import QuestionScreen2 from "./screens/QuestionScreen2";
 import QuestionScreen3 from "./screens/QuestionScreen3";
 import QuestionScreen4 from "./screens/QuestionScreen4";
 import EducativeScreen1 from "./screens/EducativeScreen1";
 import EducativeScreen2 from "./screens/EducativeScreen2";
+import QuitSureWelcomeScreen from "./screens/QuitSureWelcomeScreen";
 import QuestionScreen5 from "./screens/QuestionScreen5";
 import QuestionScreen6 from "./screens/QuestionScreen6";
 import RewiringChartScreen from "./screens/RewiringChartScreen";
@@ -16,7 +17,6 @@ import QuestionScreen7 from "./screens/QuestionScreen7";
 import QuestionScreen8 from "./screens/QuestionScreen8";
 // @ts-ignore - runtime file exists; suppress transient TS2307 here
 import EducativeScreen3 from "./screens/EducativeScreen3";
-import EducativeScreen4 from "./screens/EducativeScreen4";
 import EducativeScreen5 from "./screens/EducativeScreen5";
 import EducativeScreen6 from "./screens/EducativeScreen6";
 import QuestionScreen11 from "./screens/QuestionScreen11";
@@ -42,6 +42,7 @@ import RewiringBenefitsScreen from "./screens/RewiringBenefitsScreen";
 import GoalsScreen from "./screens/GoalsScreen";
 import RatingScreen from "./screens/RatingScreen";
 import CommitmentScreen201 from "./screens/CommitmentScreen201";
+import { usePuff } from "../src/context/PuffContext";
 import PreferredSupportScreen from "./screens/PreferredSupportScreen";
 import QuitTargetDateScreen from "./screens/QuitTargetDateScreen";
 
@@ -61,7 +62,8 @@ const ManualOnboardingFlow: React.FC = () => {
     Record<number, number | string | string[]>
   >({});
   const { width } = Dimensions.get("window");
-  const navigation: any = useNavigation();
+  // navigation variable removed — this flow uses in-pager navigation via `step`
+  const puff = usePuff();
 
   const navigateToIndex = (targetIndex: number) => {
     try {
@@ -81,9 +83,11 @@ const ManualOnboardingFlow: React.FC = () => {
   };
 
   let screens = [
-    <WelcomeScreen
-      key="w"
-      onNext={() => navigation.navigate("QuitSureWelcome")}
+    <WelcomeScreen key="w" onNext={() => setStep(1)} />,
+    <QuitSureWelcomeScreen
+      key="qs"
+      onContinue={() => setStep(2)}
+      onBack={() => setStep(0)}
     />,
     <QuestionScreen1
       key="q1"
@@ -129,7 +133,7 @@ const ManualOnboardingFlow: React.FC = () => {
       onNext={() => setStep((s) => s + 1)}
       onBack={() => setStep((s) => Math.max(0, s - 1))}
     />,
-    <EducativeScreen1 key="educative1" onNext={() => setStep(6)} />,
+    <EducativeScreen1 key="educative1" onNext={() => setStep((s) => s + 1)} />,
     <QuestionScreen5
       key="q5"
       questionNumber="Question 5"
@@ -311,13 +315,24 @@ const ManualOnboardingFlow: React.FC = () => {
     <CommitmentScreen201
       key="commitment201"
       onBack={() => setStep((s) => Math.max(0, s - 1))}
-      onNext={(strokes: any) => {
+      onNext={async (strokes: any) => {
         try {
           setAnswers((s) => ({
             ...s,
             201: strokes ? JSON.stringify(strokes) : "",
           }));
         } catch {}
+
+        try {
+          const existing = puff?.onboardingResponses?.reductionStartDate;
+          if (!existing) {
+            await puff.saveOnboardingAnswer(
+              "reductionStartDate",
+              new Date().toISOString(),
+            );
+          }
+        } catch {}
+
         setStep((s) => s + 1);
       }}
     />,

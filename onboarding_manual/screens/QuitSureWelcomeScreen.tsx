@@ -20,8 +20,10 @@ const steps = 5;
 
 export default function QuitSureWelcomeScreen({
   onContinue,
+  onBack,
 }: {
   onContinue?: () => void;
+  onBack?: () => void;
 }) {
   const theme = useTheme();
   const styles = createStyles(theme);

@@ -89,7 +89,7 @@ export const TwoLineGraph: React.FC<{
   const maxVal = Math.max(
     ...(valuesLeft.length ? valuesLeft : [0]),
     ...(valuesRight.length ? valuesRight : [0]),
-    1
+    1,
   );
 
   // Labels to show near red markers for weeks 1..6
@@ -157,11 +157,11 @@ export const TwoLineGraph: React.FC<{
   };
   const leftAreaPath = useMemo(
     () => buildAreaPath(leftCoords),
-    [leftCoords, innerW, h]
+    [leftCoords, innerW, h],
   );
   const rightAreaPath = useMemo(
     () => buildAreaPath(rightCoords),
-    [rightCoords, innerW, h]
+    [rightCoords, innerW, h],
   );
 
   // Simple draw-on-mount animation using Animated and stroke dashoffset
@@ -227,7 +227,8 @@ export const TwoLineGraph: React.FC<{
             const inset = 6;
             // Use a glassy, translucent white border/fill for onboarding-themed graphs
             const onboardingStroke = "rgba(255,255,255,0.18)";
-            const onboardingFill = "rgba(255,255,255,0.06)";
+            // remove the glassy background fill so only the lines are shown
+            const onboardingFill = "transparent";
             return (
               <Rect
                 x={inset}
@@ -236,8 +237,9 @@ export const TwoLineGraph: React.FC<{
                 height={Math.max(0, h - inset * 2)}
                 rx={12}
                 ry={12}
-                stroke={isOnboarding ? onboardingStroke : borderStroke}
-                strokeWidth={borderStrokeWidth}
+                // remove stroke so no inner border is shown
+                stroke={"transparent"}
+                strokeWidth={0}
                 fill={isOnboarding ? onboardingFill : "transparent"}
               />
             );
@@ -364,7 +366,7 @@ export const TwoLineGraph: React.FC<{
               const extraTopGap = 16; // push slightly higher above marker (increased)
               labelY = Math.max(
                 pad + 8,
-                c.yR - markerSize - verticalGap - extraTopGap
+                c.yR - markerSize - verticalGap - extraTopGap,
               );
               // nudge: move label right so it clears the marker (14px)
               renderX = c.x + 14;
@@ -387,7 +389,7 @@ export const TwoLineGraph: React.FC<{
               const extraTopGap = 4; // user-chosen nudge in px
               labelY = Math.max(
                 pad + 8,
-                c.yR - markerSize - verticalGap - extraTopGap
+                c.yR - markerSize - verticalGap - extraTopGap,
               );
               renderX = c.x;
               textAnchor = "middle";
@@ -401,7 +403,7 @@ export const TwoLineGraph: React.FC<{
               const smallTopShift = 6; // px to nudge upward
               labelY = Math.max(
                 pad + 8,
-                c.yR - markerSize - verticalGap - smallTopShift
+                c.yR - markerSize - verticalGap - smallTopShift,
               );
               // keep the visual horizontal placement we last used but
               // center the label there

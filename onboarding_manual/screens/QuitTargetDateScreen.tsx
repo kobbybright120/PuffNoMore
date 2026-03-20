@@ -13,9 +13,74 @@ import {
   Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import CommitmentBackground from "../../src/components/CommitmentBackground202";
+import { useNavigation } from "@react-navigation/native";
+import StarryBackground from "../components/StarryBackground";
+import { usePuff } from "../../src/context/PuffContext";
+import OnboardingLottie from "../../src/components/OnboardingLottie";
 
-export default function QuitTargetDateScreen({ onBack, onNext }: any) {
+export default function QuitTargetDateScreen({ _onBack, onNext }: any) {
+  const puff = usePuff();
+  const navigation: any = useNavigation();
+  const userName =
+    puff?.onboardingResponses &&
+    (puff.onboardingResponses.fullName || puff.onboardingResponses.name);
+  const reductionStartRaw =
+    puff?.onboardingResponses && puff.onboardingResponses.reductionStartDate;
+  const baseline = Number(
+    (puff?.onboardingResponses && puff.onboardingResponses.cigarettesPerDay) ||
+      0,
+  );
+  const reductionPerWeek = 2;
+  const quitDateFormatted = React.useMemo(() => {
+    if (!baseline || baseline <= 0) return "—";
+    try {
+      // Determine start date: prefer stored reductionStartDate, else use today
+      let start: Date | null = null;
+      if (reductionStartRaw) {
+        try {
+          const s = String(reductionStartRaw).trim();
+          const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+          if (m) {
+            const y = Number(m[1]);
+            const mo = Number(m[2]) - 1;
+            const d = Number(m[3]);
+            start = new Date(y, mo, d);
+          } else {
+            const parsed = new Date(s);
+            if (!isNaN(parsed.getTime())) start = parsed;
+          }
+        } catch {
+          start = null;
+        }
+      }
+      if (!start) start = new Date();
+
+      const weeksNeeded = Math.ceil(baseline / reductionPerWeek);
+      const d = new Date(start);
+      d.setDate(d.getDate() + weeksNeeded * 7);
+      return d.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      });
+    } catch {
+      return "—";
+    }
+  }, [reductionStartRaw, baseline]);
+
+  // Persist today's date as reductionStartDate if none is stored,
+  // so the app always has a start date recorded.
+  React.useEffect(() => {
+    if (!puff.onboardingResponses?.reductionStartDate) {
+      try {
+        const today = new Date();
+        const isoDateOnly = today.toISOString().slice(0, 10); // YYYY-MM-DD
+        puff.saveOnboardingAnswer("reductionStartDate", isoDateOnly);
+      } catch {
+        // ignore persistence failures
+      }
+    }
+  }, [puff.onboardingResponses?.reductionStartDate, puff]);
   const handleContinue = () => {
     if (Platform.OS === "android") {
       ToastAndroid.show(
@@ -28,20 +93,44 @@ export default function QuitTargetDateScreen({ onBack, onNext }: any) {
         "Allow PuffNoMore to send you notification",
       );
     }
-    if (onNext) onNext();
+    // End onboarding and navigate into the main app
+    try {
+      navigation.reset({ index: 0, routes: [{ name: "RootTabs" }] });
+    } catch {
+      try {
+        navigation.navigate("RootTabs");
+      } catch {
+        // fallback: advance onboarding if navigation unavailable
+        if (onNext) onNext();
+      }
+    }
   };
 
+  // benefit tags and a safe color palette (use modulo to handle any length)
+  const benefitTags = [
+    "Healthier skin & appearance",
+    "Lower heart disease risk",
+    "Better lung function",
+    "Lower heart disease risk",
+    "More energy & stamina",
+    "Improved taste & smell",
+    "Better sleep & mood",
+    "Save money every week",
+  ];
+  const benefitColors = [
+    "#4a7c8a",
+    "#8a7a4a",
+    "#2d6b4a",
+    "#7a4a7c",
+    "#4a7c6b",
+    "#7c4a4a",
+    "#6b7c4a",
+  ];
+
   return (
-    <CommitmentBackground>
+    <StarryBackground>
       <StatusBar barStyle="light-content" />
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onBack} style={styles.backButton}>
-            <Ionicons name="chevron-back" size={26} color="#FFFFFF" />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Your Quit Date</Text>
-          <View style={styles.headerSpacer} />
-        </View>
         <ScrollView
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
@@ -52,15 +141,16 @@ export default function QuitTargetDateScreen({ onBack, onNext }: any) {
               <Ionicons name="checkmark" size={32} color="#fff" />
             </View>
             <Text style={styles.mainMessage}>
-              Dff, we've made you a custom plan.
+              {userName
+                ? `${userName}, we've made you a custom plan.`
+                : "Dff, we've made you a custom plan."}
             </Text>
-            <Text style={styles.subtext}>You will quit porn by:</Text>
+            <Text style={styles.subtext}>You will quit smoking by:</Text>
             <View style={styles.leadCard}>
-              <Text style={styles.leadCardText}>May 3, 2026</Text>
+              <Text style={styles.leadCardText}>{quitDateFormatted}</Text>
             </View>
             <View style={styles.decorativeLine} />
             <View style={styles.laurelStarsRow}>
-              {/* Placeholder laurels, replace with image if available */}
               <Ionicons
                 name="leaf"
                 size={28}
@@ -74,11 +164,11 @@ export default function QuitTargetDateScreen({ onBack, onNext }: any) {
                 name="leaf"
                 size={28}
                 color="#ccc"
-                style={{ marginLeft: 8 }}
+                style={{ marginLeft: 8, transform: [{ scaleX: -1 }] }}
               />
             </View>
             <Text style={styles.motivationalText}>
-              Become the best version of yourself with QUITTR
+              Become the best version of yourself with PuffNoMore
             </Text>
             <Text style={styles.motivationalSubtext}>
               Strong, Healthier, Happier
@@ -87,29 +177,14 @@ export default function QuitTargetDateScreen({ onBack, onNext }: any) {
 
           {/* Benefit Tags */}
           <View style={styles.tagsContainer}>
-            {[
-              "Increased Testosterone",
-              "Prevent Erectile Dysfunction",
-              "Increased Energy",
-              "Increased Motivation",
-              "Improved Focus",
-              "Improved Relationships",
-              "Increased Confidence",
-            ].map((benefit, index) => (
+            {benefitTags.map((benefit, index) => (
               <View
                 key={index}
                 style={[
                   styles.tag,
                   {
-                    backgroundColor: [
-                      "#4a7c8a",
-                      "#8a7a4a",
-                      "#2d6b4a",
-                      "#7a4a7c",
-                      "#4a7c6b",
-                      "#7c4a4a",
-                      "#6b7c4a",
-                    ][index],
+                    backgroundColor:
+                      benefitColors[index % benefitColors.length],
                   },
                 ]}
               >
@@ -120,10 +195,9 @@ export default function QuitTargetDateScreen({ onBack, onNext }: any) {
 
           {/* Illustration */}
           <View style={styles.illustrationContainer}>
-            <Image
-              source={require("../../assets/testimonials/casual-dressed-man-mockup-psd-playing-with-phone-outdoor-photoshoot_53876-1082530.jpg")}
-              style={styles.illustration}
-              resizeMode="contain"
+            <OnboardingLottie
+              animationKey="QuitDateScreenLottie"
+              style={{ lottieWidth: 220, lottieHeight: 220 }}
             />
           </View>
 
@@ -137,7 +211,7 @@ export default function QuitTargetDateScreen({ onBack, onNext }: any) {
                 <Ionicons name="shield-checkmark" size={20} color="#FFFFFF" />
               </View>
               <Text style={styles.benefitText}>
-                Build unbreakable self control
+                Reduce your smoking gradually
               </Text>
             </View>
             <View style={styles.benefitItem}>
@@ -145,22 +219,28 @@ export default function QuitTargetDateScreen({ onBack, onNext }: any) {
                 <Ionicons name="person" size={20} color="#FFFFFF" />
               </View>
               <Text style={styles.benefitText}>
-                Become more attractive and confident
+                Strengthen your self-control
               </Text>
             </View>
             <View style={styles.benefitItem}>
               <View style={[styles.iconCircle, { backgroundColor: "#22C55E" }]}>
                 <Ionicons name="trending-up" size={20} color="#FFFFFF" />
               </View>
-              <Text style={styles.benefitText}>Boost your self-worth</Text>
+              <Text style={styles.benefitText}>Build confidence daily</Text>
             </View>
             <View style={styles.benefitItem}>
               <View style={[styles.iconCircle, { backgroundColor: "#EAB308" }]}>
                 <Ionicons name="medal" size={20} color="#FFFFFF" />
               </View>
               <Text style={styles.benefitText}>
-                Fill each day with pride and happiness
+                Feel proud of your progress
               </Text>
+            </View>
+            <View style={styles.benefitItem}>
+              <View style={[styles.iconCircle, { backgroundColor: "#22C55E" }]}>
+                <Ionicons name="checkmark-circle" size={20} color="#FFFFFF" />
+              </View>
+              <Text style={styles.benefitText}>Become nicotine-free</Text>
             </View>
           </View>
 
@@ -174,9 +254,9 @@ export default function QuitTargetDateScreen({ onBack, onNext }: any) {
           {/* Testimonial & Chart Section */}
           <View style={styles.testimonialSection}>
             <Text style={styles.testimonialQuote}>
-              'All this time my social anxiety was just because I was secretly
-              ashamed of my porn problem. I never want to feel that small
-              again.'
+              'For a long time, I felt controlled by my smoking habit. But by
+              reducing it step by step, I rebuilt my confidence and took back
+              control. I never want to feel that dependent again.'
             </Text>
             <Text style={styles.testimonialAuthor}>Anonymous</Text>
             <View style={styles.chartIllustrationContainer}>
@@ -190,8 +270,17 @@ export default function QuitTargetDateScreen({ onBack, onNext }: any) {
 
           {/* Restore Sex Drive Benefits */}
           <View style={styles.benefitListSection}>
+            <OnboardingLottie
+              animationKey="gradualReduction"
+              style={{
+                lottieWidth: 260,
+                lottieHeight: 140,
+                marginTop: -12,
+                marginBottom: 8,
+              }}
+            />
             <Text style={styles.benefitsTitle}>
-              Restore your natural sex drive
+              Become Free from Nicotine Again
             </Text>
             <View style={styles.benefitRow}>
               <Ionicons
@@ -201,7 +290,7 @@ export default function QuitTargetDateScreen({ onBack, onNext }: any) {
                 style={{ marginRight: 8 }}
               />
               <Text style={styles.benefitRowText}>
-                Rewire your brain to prefer real sex
+                Feel your body recover with every step
               </Text>
             </View>
             <View style={styles.benefitRow}>
@@ -212,24 +301,39 @@ export default function QuitTargetDateScreen({ onBack, onNext }: any) {
                 style={{ marginRight: 8 }}
               />
               <Text style={styles.benefitRowText}>
-                Reverse porn-induced desensitization
+                Break free from nicotine control
               </Text>
             </View>
             <View style={styles.benefitRow}>
               <Ionicons
-                name="heart"
+                name="time"
                 size={24}
                 color="#3B82F6"
                 style={{ marginRight: 8 }}
               />
               <Text style={styles.benefitRowText}>
-                Enjoy healthy and satisfying intimacy
+                Reduce smoking without overwhelming yourself
+              </Text>
+            </View>
+            <View style={styles.benefitRow}>
+              <Ionicons
+                name="trophy"
+                size={24}
+                color="#FBBF24"
+                style={{ marginRight: 8 }}
+              />
+              <Text style={styles.benefitRowText}>
+                Become fully smoke-free over time
               </Text>
             </View>
           </View>
 
           {/* Take Back Control Component */}
           <View style={styles.takeBackControlSection}>
+            <OnboardingLottie
+              animationKey="hero"
+              style={{ lottieWidth: 260, lottieHeight: 140, marginBottom: 8 }}
+            />
             <View style={styles.takeBackIllustrationContainer}>
               <Image
                 source={require("../../assets/animations/fadeInLogo.json")}
@@ -246,7 +350,7 @@ export default function QuitTargetDateScreen({ onBack, onNext }: any) {
                 style={{ marginRight: 8 }}
               />
               <Text style={styles.benefitRowText}>
-                Learn to redirect harmful cravings
+                Reclaim control from nicotine
               </Text>
             </View>
             <View style={styles.benefitRow}>
@@ -257,7 +361,7 @@ export default function QuitTargetDateScreen({ onBack, onNext }: any) {
                 style={{ marginRight: 8 }}
               />
               <Text style={styles.benefitRowText}>
-                Regain focus and motivation
+                Reshape your cravings over time
               </Text>
             </View>
             <View style={styles.benefitRow}>
@@ -268,7 +372,7 @@ export default function QuitTargetDateScreen({ onBack, onNext }: any) {
                 style={{ marginRight: 8 }}
               />
               <Text style={styles.benefitRowText}>
-                Find real joy and satisfaction in life
+                Return to clarity and focus
               </Text>
             </View>
             <View style={{ height: 24 }} />
@@ -279,15 +383,16 @@ export default function QuitTargetDateScreen({ onBack, onNext }: any) {
               ))}
             </View>
             <Text style={styles.takeBackTestimonialQuote}>
-              'I had started to dread having sex with my girlfriend because I
-              was so anxious all the time. But now our sex is so good it's made
-              our relationship much stronger.'
+              'For years, smoking kept me trapped in anxiety and low energy. I
+              didn’t realize how much it was stealing from my confidence and
+              relationships. Quitting gave me back control now I feel stronger,
+              more connected, and free.'
             </Text>
             <Text style={styles.testimonialAuthor}>Anonymous</Text>
             <View style={styles.specialDiscountSection}>
               <Text style={styles.specialDiscountTitle}>Special Discount!</Text>
               <Text style={styles.specialDiscountSubtitle}>
-                Get 80% off on QUITTR premium!
+                Get 80% off on PuffNomore premium!
               </Text>
               <TouchableOpacity
                 style={styles.specialDiscountButton}
@@ -304,27 +409,27 @@ export default function QuitTargetDateScreen({ onBack, onNext }: any) {
             activeOpacity={0.8}
             onPress={handleContinue}
           >
-            <Text style={styles.ctaButtonText}>Become a QUITTR</Text>
+            <Text style={styles.ctaButtonText}>Become a PuffnoMore</Text>
           </TouchableOpacity>
           <Text style={styles.disclaimer}>Purchase appears Discretely</Text>
           <Text style={styles.cancelText}>
-            Cancel anytime✅ Finally Quit Porn🛡️
+            Cancel anytime✅ Finally Quit Smoking🛡️
           </Text>
         </View>
       </SafeAreaView>
-    </CommitmentBackground>
+    </StarryBackground>
   );
 }
 
 const styles = StyleSheet.create({
   takeBackControlSection: {
     alignItems: "center",
-    paddingTop: 24,
-    paddingBottom: 24,
+    paddingTop: 16,
+    paddingBottom: 16,
   },
   takeBackIllustrationContainer: {
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 12,
   },
   takeBackIllustration: {
     width: 120,
@@ -333,7 +438,7 @@ const styles = StyleSheet.create({
   },
   takeBackTitle: {
     color: "#fff",
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "700",
     textAlign: "center",
     marginBottom: 16,
@@ -357,19 +462,21 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 8,
     marginHorizontal: 12,
+    fontFamily: "Inter",
   },
   testimonialSection: {
     alignItems: "center",
-    paddingTop: 24,
-    paddingBottom: 24,
+    paddingTop: 12,
+    paddingBottom: 12,
   },
   testimonialQuote: {
     color: "#fff",
-    fontSize: 18,
+    fontSize: 16,
     fontStyle: "italic",
     textAlign: "center",
     marginBottom: 8,
-    marginHorizontal: 12,
+    marginHorizontal: 10,
+    fontFamily: "Inter",
   },
   testimonialAuthor: {
     color: "#9CA3AF",
@@ -379,179 +486,189 @@ const styles = StyleSheet.create({
   },
   chartIllustrationContainer: {
     alignItems: "center",
-    marginVertical: 16,
+    marginVertical: 12,
   },
   chartIllustration: {
-    width: 120,
-    height: 80,
+    width: 140,
+    height: 90,
     marginBottom: 8,
   },
   benefitsTitle: {
     color: "#fff",
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "700",
     textAlign: "center",
-    marginBottom: 16,
+    marginBottom: 12,
   },
   benefitListSection: {
     width: "100%",
-    marginBottom: 24,
+    marginBottom: 18,
   },
   benefitRow: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
-    marginHorizontal: 8,
+    marginBottom: 10,
+    marginHorizontal: 6,
   },
   benefitRowText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 15,
     flex: 1,
+    lineHeight: 20,
   },
   headerSection: {
     alignItems: "center",
-    paddingTop: 32,
-    paddingBottom: 24,
+    paddingTop: 20,
+    paddingBottom: 12,
   },
   checkmarkCircle: {
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: "rgba(255,255,255,0.15)",
+    backgroundColor: "rgba(255,255,255,0.12)",
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 16,
+    marginBottom: 12,
   },
   laurelStarsRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    marginVertical: 16,
+    marginVertical: 10,
   },
   motivationalText: {
     color: "#fff",
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: "700",
     textAlign: "center",
-    marginTop: 8,
+    marginTop: 6,
     marginBottom: 4,
+    fontFamily: "Inter",
   },
   motivationalSubtext: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 14,
     textAlign: "center",
-    opacity: 0.85,
-    marginBottom: 16,
+    opacity: 0.9,
+    marginBottom: 12,
+    fontFamily: "Inter",
   },
   tagsContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,
     justifyContent: "center",
-    marginBottom: 32,
+    marginBottom: 20,
   },
   tag: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    borderRadius: 20,
+    borderRadius: 18,
   },
   tagText: {
     color: "#FFFFFF",
-    fontSize: 11,
-    fontWeight: "500",
+    fontSize: 14,
+    fontWeight: "400",
+    fontFamily: "Inter",
   },
   illustrationContainer: {
     alignItems: "center",
-    marginBottom: 32,
+    marginBottom: 18,
   },
   illustration: {
-    width: 256,
-    height: 200,
+    width: 220,
+    height: 180,
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: "700",
     color: "#FFFFFF",
     textAlign: "center",
-    marginBottom: 32,
+    marginBottom: 20,
+    fontFamily: "Inter",
   },
   benefitsList: {
-    gap: 16,
-    marginBottom: 32,
+    gap: 12,
+    marginBottom: 18,
   },
   benefitItem: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 16,
+    alignItems: "center",
+    gap: 12,
+    width: "100%",
+    paddingVertical: 6,
   },
   iconCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 2,
+    marginTop: 0,
   },
   benefitText: {
     flex: 1,
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "600",
     color: "#FFFFFF",
-    lineHeight: 26,
+    lineHeight: 22,
     textAlign: "left",
-    marginTop: 2,
-    marginBottom: 2,
+    marginTop: 0,
+    marginBottom: 0,
     letterSpacing: 0.2,
     backgroundColor: "transparent",
-    // Add shadow for contrast if needed
-    textShadowColor: "rgba(0,0,0,0.3)",
+    textShadowColor: "rgba(0,0,0,0.2)",
     textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    textShadowRadius: 1.5,
+    fontFamily: "Inter",
   },
   starsContainer: {
     flexDirection: "row",
     justifyContent: "center",
     gap: 8,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.2)",
-    borderRadius: 28,
-    paddingVertical: 12,
-    paddingHorizontal: 32,
+    borderColor: "rgba(255, 255, 255, 0.12)",
+    borderRadius: 22,
+    paddingVertical: 10,
+    paddingHorizontal: 24,
     alignSelf: "center",
-    marginBottom: 32,
+    marginBottom: 20,
   },
   bottomSection: {
-    paddingHorizontal: 24,
-    paddingBottom: 24,
+    paddingHorizontal: 20,
+    paddingBottom: 20,
     backgroundColor: "transparent",
   },
   ctaButton: {
     backgroundColor: "#FFFFFF",
     borderRadius: 28,
-    paddingVertical: 16,
+    paddingVertical: 14,
     alignItems: "center",
-    marginBottom: 16,
+    marginBottom: 12,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 4,
   },
   ctaButtonText: {
-    fontSize: 18,
-    fontWeight: "700",
+    fontSize: 17,
+    fontWeight: "800",
     color: "#1e5c6e",
+    fontFamily: "Inter",
   },
   disclaimer: {
     fontSize: 14,
     color: "#9CA3AF",
     textAlign: "center",
     marginBottom: 8,
+    fontFamily: "Inter",
   },
   cancelText: {
     fontSize: 14,
     color: "#9CA3AF",
     textAlign: "center",
+    fontFamily: "Inter",
   },
   safeArea: { flex: 1 },
   header: {
@@ -575,9 +692,9 @@ const styles = StyleSheet.create({
   },
   headerSpacer: { width: 40 },
   content: {
-    paddingHorizontal: 20,
-    paddingTop: 14,
-    paddingBottom: 16,
+    paddingHorizontal: 18,
+    paddingTop: 12,
+    paddingBottom: 14,
     alignItems: "center",
   },
   titleLarge: {
@@ -691,12 +808,14 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginBottom: 4,
     textAlign: "center",
+    fontFamily: "Inter",
   },
   specialDiscountSubtitle: {
     color: "#fff",
     fontSize: 16,
     marginBottom: 12,
     textAlign: "center",
+    fontFamily: "Inter",
   },
   specialDiscountButton: {
     backgroundColor: "#fff",

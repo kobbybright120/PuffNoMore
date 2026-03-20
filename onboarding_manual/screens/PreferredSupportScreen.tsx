@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   StatusBar,
   TouchableOpacity,
+  Pressable,
   Animated,
   Easing,
 } from "react-native";
@@ -13,6 +14,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import StarryBackground from "../components/StarryBackground";
 import PlanCard from "../../src/components/PlanCard";
+// try to use react-navigation focus hooks when available
+let useFocusEffect: any = null;
+try {
+  const nav = require("@react-navigation/native");
+  useFocusEffect = nav.useFocusEffect;
+} catch {
+  useFocusEffect = null;
+}
 
 // Smooth Typewriter using requestAnimationFrame for consistent timings
 function Typewriter({
@@ -37,6 +46,7 @@ function Typewriter({
     finishedRef.current = false;
     setDisplay("");
     if (onStart) onStart();
+    console.log("Typewriter: started", { text, speed });
 
     const step = (now: number) => {
       if (lastRef.current == null) lastRef.current = now;
@@ -56,14 +66,28 @@ function Typewriter({
       } else {
         if (!finishedRef.current) {
           finishedRef.current = true;
+          console.log("Typewriter: finished");
           if (onDone) onDone();
         }
       }
     };
 
     rafRef.current = requestAnimationFrame(step);
+    // fallback in case rAF doesn't fire reliably on some devices
+    const fallbackTimer = setTimeout(
+      () => {
+        if (!finishedRef.current) {
+          finishedRef.current = true;
+          console.warn("Typewriter: fallback finish triggered");
+          if (onDone) onDone();
+        }
+      },
+      Math.max(500, text.length * speed + 500),
+    );
+
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      clearTimeout(fallbackTimer);
     };
   }, [text, speed]);
 
@@ -75,25 +99,29 @@ function Typewriter({
   );
 }
 
-export default function PreferredSupportScreen({ onBack, onNext }: any) {
+export default function PreferredSupportScreen(props: any) {
+  const { onBack, onNext, navigation, isActive } = props;
   const flipRef = React.useRef(new Animated.Value(90));
   const opacityRef = React.useRef(new Animated.Value(0));
   const [cardVisible, setCardVisible] = React.useState(false);
+  const [tvKey, setTvKey] = React.useState(0);
 
   const handleTypeDone = () => {
+    console.log("PreferredSupportScreen: handleTypeDone called");
     setCardVisible(true);
+    // Use native-driven timing for a smoother, consistent animation
     Animated.parallel([
-      Animated.spring(flipRef.current, {
+      Animated.timing(flipRef.current, {
         toValue: 0,
-        friction: 8,
-        tension: 80,
-        useNativeDriver: false,
+        duration: 600,
+        easing: Easing.out(Easing.cubic),
+        useNativeDriver: true,
       }),
       Animated.timing(opacityRef.current, {
         toValue: 1,
         duration: 420,
         easing: Easing.out(Easing.cubic),
-        useNativeDriver: false,
+        useNativeDriver: true,
       }),
     ]).start();
   };
@@ -101,14 +129,66 @@ export default function PreferredSupportScreen({ onBack, onNext }: any) {
   const handleTypeStart = () => {
     // Reset animation values so hot reloads / refreshes replay the flip
     try {
-      // recreate Animated.Values to avoid driver mismatch (native vs JS)
-      flipRef.current = new Animated.Value(90);
-      opacityRef.current = new Animated.Value(0);
+      console.log("PreferredSupportScreen: handleTypeStart called");
+      // Prefer resetting the existing Animated.Value via setValue so the
+      // native driver node remains consistent with the animated view.
+      if (
+        flipRef.current &&
+        typeof (flipRef.current as any).setValue === "function"
+      ) {
+        (flipRef.current as any).setValue(90);
+      } else {
+        flipRef.current = new Animated.Value(90);
+      }
+      if (
+        opacityRef.current &&
+        typeof (opacityRef.current as any).setValue === "function"
+      ) {
+        (opacityRef.current as any).setValue(0);
+      } else {
+        opacityRef.current = new Animated.Value(0);
+      }
       setCardVisible(false);
-    } catch (e) {
+    } catch {
       // ignore if values unavailable
     }
   };
+  // prefer useFocusEffect when available (works even when screen stays mounted)
+  if (useFocusEffect) {
+    useFocusEffect(
+      React.useCallback(() => {
+        console.log("PreferredSupportScreen: focus via useFocusEffect");
+        handleTypeStart();
+        setTvKey((k) => k + 1);
+        return () => {};
+      }, []),
+    );
+  } else {
+    // fallback to navigation 'focus' event listener
+    React.useEffect(() => {
+      if (!navigation || !navigation.addListener) return;
+      console.log(
+        "PreferredSupportScreen: attaching navigation.focus listener",
+      );
+      const sub = navigation.addListener("focus", () => {
+        console.log("PreferredSupportScreen: focus event received");
+        handleTypeStart();
+        setTvKey((k) => k + 1);
+      });
+      return () => sub && sub();
+    }, [navigation]);
+  }
+
+  // If this screen is rendered inside a parent pager (ManualOnboardingFlow)
+  // the parent passes `isActive` to indicate the active page. React to
+  // that so the typewriter + card flip replay when the page becomes active.
+  React.useEffect(() => {
+    if (isActive) {
+      console.log("PreferredSupportScreen: active via isActive prop");
+      handleTypeStart();
+      setTvKey((k) => k + 1);
+    }
+  }, [isActive]);
   return (
     <StarryBackground>
       <StatusBar barStyle="light-content" />
@@ -122,6 +202,7 @@ export default function PreferredSupportScreen({ onBack, onNext }: any) {
         </View>
         <View style={styles.titleWrap}>
           <Typewriter
+            key={tvKey}
             text={"Now it's time to invest in yourself"}
             speed={36}
             showCaret={false}
@@ -154,11 +235,20 @@ export default function PreferredSupportScreen({ onBack, onNext }: any) {
           )}
         </View>
         <View style={styles.footer}>
-          <LinearGradient colors={["#90b855", "#63a96a"]} style={styles.cta}>
-            <Text style={styles.ctaText} onPress={onNext}>
-              Continue
-            </Text>
-          </LinearGradient>
+          <Pressable
+            onPress={onNext}
+            android_ripple={{ color: "transparent" }}
+            style={styles.cta}
+          >
+            <LinearGradient
+              colors={["#90b855", "#63a96a"]}
+              style={styles.ctaInner}
+            >
+              <Text style={styles.ctaText} selectable={false}>
+                Continue
+              </Text>
+            </LinearGradient>
+          </Pressable>
         </View>
       </SafeAreaView>
     </StarryBackground>
@@ -229,6 +319,11 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     overflow: "hidden",
     marginTop: 12,
+  },
+  ctaInner: {
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 24,
   },
   ctaText: {
     color: "#fff",

@@ -179,9 +179,7 @@ const QuestionScreen11: React.FC<Props> = ({
             </View>
           </View>
 
-          <TouchableOpacity style={styles.langButton}>
-            <Text style={styles.langText}>EN</Text>
-          </TouchableOpacity>
+          {/* language selector hidden on this screen */}
         </View>
 
         <ScrollView

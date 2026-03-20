@@ -40,7 +40,7 @@ const MotivationCard: React.FC<Props> = ({ quote, author, onShare }) => {
   const STORAGE_KEY = "@motivation_state_v1";
   const timerRef = React.useRef<number | null>(null);
   const [selectedIndex, setSelectedIndex] = React.useState<number>(() =>
-    Math.floor(Math.random() * (motivations.length || 1))
+    Math.floor(Math.random() * (motivations.length || 1)),
   );
 
   const sanitize = React.useCallback((text?: string): string => {
@@ -60,7 +60,7 @@ const MotivationCard: React.FC<Props> = ({ quote, author, onShare }) => {
       t = sanitize(t);
       return t.replace(/\s+/g, " ").trim();
     },
-    [sanitize]
+    [sanitize],
   );
 
   // displayed motivation: use provided quote or persisted hourly selection
@@ -90,7 +90,10 @@ const MotivationCard: React.FC<Props> = ({ quote, author, onShare }) => {
       try {
         await AsyncStorage.setItem(
           STORAGE_KEY,
-          JSON.stringify({ hour: Math.floor(Date.now() / HOUR_MS), index: idx })
+          JSON.stringify({
+            hour: Math.floor(Date.now() / HOUR_MS),
+            index: idx,
+          }),
         );
       } catch {}
       scheduleNextHour();
@@ -123,7 +126,10 @@ const MotivationCard: React.FC<Props> = ({ quote, author, onShare }) => {
       try {
         await AsyncStorage.setItem(
           STORAGE_KEY,
-          JSON.stringify({ hour: Math.floor(Date.now() / HOUR_MS), index: idx })
+          JSON.stringify({
+            hour: Math.floor(Date.now() / HOUR_MS),
+            index: idx,
+          }),
         );
       } catch {}
       scheduleNextHour();
@@ -234,6 +240,15 @@ const MotivationCard: React.FC<Props> = ({ quote, author, onShare }) => {
       borderWidth: 1,
       borderColor: theme.colors.secondaryGreen + "44",
     },
+    gradientCircle: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      alignItems: "center",
+      justifyContent: "center",
+      marginLeft: theme.spacing.sm,
+      overflow: "hidden",
+    },
   });
 
   // adjust borders based on theme so dark mode uses subtle light borders
@@ -256,45 +271,63 @@ const MotivationCard: React.FC<Props> = ({ quote, author, onShare }) => {
               sanitize(
                 quote ??
                   getDisplayedMotivation() ??
-                  "You are doing important work for yourself."
-              )
+                  "You are doing important work for yourself.",
+              ),
             )}
           </Text>
           {author ? (
             <Text style={styles.author}>{sanitize(author)}</Text>
           ) : null}
           <View style={styles.actions}>
-            <TouchableOpacity
-              style={[styles.circleButton, { borderColor: circleBorderColor }]}
-              onPress={handleShare}
-              activeOpacity={0.85}
-            >
-              <Ionicons
-                name="share-social"
-                size={18}
-                color={theme.colors.primaryGreen}
-              />
-            </TouchableOpacity>
-            <Animated.View style={{ transform: [{ scale: favScale }] }}>
-              <TouchableOpacity
-                style={[
-                  styles.circleButton,
-                  { borderColor: circleBorderColor },
-                  {
-                    backgroundColor: saved
-                      ? theme.colors.primaryGreen
-                      : theme.colors.primaryBackground,
-                  },
+            <TouchableOpacity onPress={handleShare} activeOpacity={0.9}>
+              <LinearGradient
+                colors={[
+                  theme.colors.primaryGreen,
+                  theme.colors.secondaryGreen,
                 ]}
-                onPress={toggleSave}
-                activeOpacity={0.85}
+                style={styles.gradientCircle}
               >
                 <Ionicons
-                  name={saved ? "heart" : "heart-outline"}
+                  name="share-social"
                   size={18}
-                  color={saved ? "#fff" : theme.colors.primaryGreen}
+                  color={theme.colors.primaryBackground}
                 />
-              </TouchableOpacity>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <Animated.View style={{ transform: [{ scale: favScale }] }}>
+              {saved ? (
+                <TouchableOpacity onPress={toggleSave} activeOpacity={0.9}>
+                  <LinearGradient
+                    colors={[
+                      theme.colors.primaryGreen,
+                      theme.colors.secondaryGreen,
+                    ]}
+                    style={styles.gradientCircle}
+                  >
+                    <Ionicons
+                      name="heart"
+                      size={18}
+                      color={theme.colors.primaryBackground}
+                    />
+                  </LinearGradient>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={[
+                    styles.circleButton,
+                    { borderColor: circleBorderColor },
+                  ]}
+                  onPress={toggleSave}
+                  activeOpacity={0.85}
+                >
+                  <Ionicons
+                    name={"heart-outline"}
+                    size={18}
+                    color={theme.colors.primaryGreen}
+                  />
+                </TouchableOpacity>
+              )}
             </Animated.View>
           </View>
         </View>

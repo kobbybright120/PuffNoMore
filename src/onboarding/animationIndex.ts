@@ -18,6 +18,10 @@ export const animations: Record<string, any> = {
   hero: require("../../assets/animations/extracted/animations/Hero.json"),
   // meditating brain animation for screen id 26
   meditatingBrain: require("../../assets/animations/extracted/animations/Meditating Brain.json"),
+  // lottie used on the quitting-target screen
+  QuitDateScreenLottie: require("../../assets/animations/extracted/animations/QuitDateScreenLottie.json"),
+  // gradual reduction unpacked Lottie (Main Scene)
+  gradualReduction: require("../../assets/animations/extracted/gradual_redutction_unpacked/a/Main Scene.json"),
   // target hit animation for screen id 27
   targetHit: require("../../assets/animations/extracted/animations/Target Hit!.json"),
   // avoid setbacks animation for screen id 28

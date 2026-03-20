@@ -82,9 +82,7 @@ const QuestionScreen4: React.FC<any> = ({
               </View>
             </View>
 
-            <TouchableOpacity style={styles.langButton}>
-              <Text style={styles.langText}>EN</Text>
-            </TouchableOpacity>
+            {/* language selector hidden on this screen */}
           </View>
 
           <Text style={styles.questionTitle}>{questionNumber}</Text>
@@ -175,19 +173,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   progressFill: { height: "100%", backgroundColor: "#63a96a" },
-  langButton: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    backgroundColor: "rgba(255,255,255,0.06)",
-    marginLeft: 8,
-  },
-  langText: {
-    color: "#fff",
-    fontWeight: "700",
-    fontSize: 16,
-    fontFamily: "Inter",
-  },
+  /* langButton removed for screens other than QuestionScreen1 */
   questionTitle: {
     color: "#fff",
     fontSize: 28,

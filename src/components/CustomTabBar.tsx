@@ -1,6 +1,7 @@
 import React from "react";
 import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../context/ThemeContext";
 import { usePuff } from "../context/PuffContext";
 import * as SafeHaptics from "../utils/haptics";
@@ -39,6 +40,19 @@ const CustomTabBar: React.FC<any> = ({ state, descriptors, navigation }) => {
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.25,
       shadowRadius: 3.84,
+    },
+    gradientCircle: {
+      width: 44,
+      height: 44,
+      borderRadius: 22,
+      alignItems: "center",
+      justifyContent: "center",
+      overflow: "hidden",
+    },
+    smallLabel: {
+      fontSize: 10,
+      fontFamily: theme.fonts.family.regular,
+      marginTop: 2,
     },
     label: {
       fontSize: 10,
@@ -111,7 +125,7 @@ const CustomTabBar: React.FC<any> = ({ state, descriptors, navigation }) => {
         >
           {route.name}
         </Text>
-      </TouchableOpacity>
+      </TouchableOpacity>,
     );
 
     if (index === 1) {
@@ -129,12 +143,23 @@ const CustomTabBar: React.FC<any> = ({ state, descriptors, navigation }) => {
           style={styles.logButton}
           onPress={onLogPress}
         >
-          <Ionicons
-            name="add"
-            size={40}
-            color={theme.colors.primaryBackground}
-          />
-        </TouchableOpacity>
+          <LinearGradient
+            colors={[theme.colors.primaryGreen, theme.colors.secondaryGreen]}
+            style={{
+              width: 50,
+              height: 50,
+              borderRadius: 25,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Ionicons
+              name="add"
+              size={40}
+              color={theme.colors.primaryBackground}
+            />
+          </LinearGradient>
+        </TouchableOpacity>,
       );
     }
   });

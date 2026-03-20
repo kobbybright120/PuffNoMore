@@ -4,28 +4,19 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  ScrollView,
   Animated,
   AccessibilityInfo,
   Dimensions,
   Alert,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
-import Svg, {
-  Path,
-  Defs,
-  LinearGradient as SvgLinearGradient,
-  Stop,
-  Rect,
-} from "react-native-svg";
-import { Ionicons } from "@expo/vector-icons";
+// removed unused SVG/gradient/icon imports
 import ElegantBackground from "../components/ElegantBackground";
 
 let LottieView: any = null;
 try {
   const mod = require("lottie-react-native");
   LottieView = mod && (mod.default || mod);
-} catch (_) {
+} catch {
   LottieView = null;
 }
 
@@ -35,15 +26,12 @@ const { width, height } = Dimensions.get("window");
 const lottieWidth = Math.min(width - 32, 540);
 const lottieHeight = Math.round(lottieWidth * 0.78);
 const buttonWidth = Math.min(lottieWidth, 360);
-// header height responsive to screen height
-const headerHeight = Math.min(72, Math.round(height * 0.08));
 
 interface Props {
   onNext?: () => void;
 }
 
-type Star = { x: number; y: number; size: number; opacity: number };
-type Particle = { x: number; y: number; size: number };
+// local types removed (unused)
 
 const WelcomeScreen: React.FC<Props> = ({ onNext }) => {
   // Background visuals are now provided by ElegantBackground.
@@ -95,40 +83,35 @@ const WelcomeScreen: React.FC<Props> = ({ onNext }) => {
   let lottieSrc: any = null;
   try {
     // Preferred: exact capitalization with space
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     lottieSrc = require("../../assets/animations/extracted/animations/Rocket Booster.json");
-  } catch (e) {}
+  } catch {}
 
   if (!lottieSrc) {
     try {
       // fallback variants
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
       lottieSrc = require("../../assets/animations/extracted/animations/Rocket booster.json");
-    } catch (e) {}
+    } catch {}
   }
 
   if (!lottieSrc) {
     try {
       // CamelCase no space
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
       lottieSrc = require("../../assets/animations/extracted/animations/RocketBooster.json");
-    } catch (e) {}
+    } catch {}
   }
 
   if (!lottieSrc) {
     try {
       // underscore
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
       lottieSrc = require("../../assets/animations/extracted/animations/rocket_booster.json");
-    } catch (e) {}
+    } catch {}
   }
 
   if (!lottieSrc) {
     try {
       // dash
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
       lottieSrc = require("../../assets/animations/extracted/animations/rocket-booster.json");
-    } catch (e) {}
+    } catch {}
   }
 
   return (
