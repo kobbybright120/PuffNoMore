@@ -14,7 +14,7 @@ import {
 } from "react-native";
 import AppHeader from "../components/AppHeader";
 import CountdownTimer from "../components/CountdownTimer";
-import { useTheme } from "../context/ThemeContext";
+import { useTheme, useThemeSetter } from "../context/ThemeContext";
 import { usePuff } from "../context/PuffContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 // craving tools removed per request
@@ -48,6 +48,7 @@ const SettingsScreen: React.FC = () => {
     notificationTimes,
     setNotificationTime,
     setNextSmokeDelayMinutes,
+    setCurrentCigs,
   } = usePuff();
 
   const [localBaseline, setLocalBaseline] = useState<number>(totalPuffs ?? 0);
@@ -188,10 +189,18 @@ const SettingsScreen: React.FC = () => {
     danger: { color: "#d9534f", fontFamily: theme.fonts.family.bold },
   });
 
+  const themeSetter = useThemeSetter();
+
   const saveBaseline = async (n: number) => {
     const val = Math.max(0, Math.min(50, Math.round(n)));
     setLocalBaseline(val);
     await setTotalPuffs(val);
+    try {
+      // keep the live current target in sync so Home updates immediately
+      if (typeof setCurrentCigs === "function") {
+        await setCurrentCigs(Math.max(0, Math.round(val - 2)));
+      }
+    } catch {}
   };
 
   const toggleNotification = async (key: keyof typeof notificationPrefs) => {
@@ -234,7 +243,7 @@ const SettingsScreen: React.FC = () => {
             }
           },
         },
-      ]
+      ],
     );
   };
 
@@ -307,7 +316,7 @@ const SettingsScreen: React.FC = () => {
     else next[timeModalIndex] = entry as any;
     // sort by time string
     next.sort((a: any, b: any) =>
-      a.time > b.time ? 1 : a.time < b.time ? -1 : 0
+      a.time > b.time ? 1 : a.time < b.time ? -1 : 0,
     );
     await setSmokingTimes(next as any);
     setTimeModalVisible(false);
@@ -374,7 +383,7 @@ const SettingsScreen: React.FC = () => {
   const nextSmokeAt =
     minutesToNext > 0
       ? hhmmFromMinutes(
-          new Date().getHours() * 60 + new Date().getMinutes() + minutesToNext
+          new Date().getHours() * 60 + new Date().getMinutes() + minutesToNext,
         )
       : null;
 
@@ -398,7 +407,7 @@ const SettingsScreen: React.FC = () => {
         }
         const d = new Date(ts);
         const hhmm = `${String(d.getHours()).padStart(2, "0")}:${String(
-          d.getMinutes()
+          d.getMinutes(),
         ).padStart(2, "0")}`;
         setPersistedNextSmokeAt(formatTo12Hour(hhmm));
       } catch {
@@ -451,7 +460,7 @@ const SettingsScreen: React.FC = () => {
                       if (hapticsEnabled && Haptics.impactAsync)
                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                     } catch {}
-                    saveBaseline(localBaseline - 1);
+                    saveBaseline(Math.max(0, localBaseline - 2));
                   }}
                   style={styles.stepBtn}
                 >
@@ -636,6 +645,52 @@ const SettingsScreen: React.FC = () => {
                 thumbColor={theme.colors.primaryBackground}
                 trackColor={{ true: theme.colors.primaryGreen }}
               />
+            </View>
+
+            <View style={styles.row}>
+              <View>
+                <Text style={styles.label}>Theme</Text>
+                <Text style={styles.smallLabel}>App appearance</Text>
+              </View>
+              <View style={{ flexDirection: "row", alignItems: "center" }}>
+                {(
+                  [
+                    { key: "light", label: "Light" },
+                    { key: "dark", label: "Dark" },
+                    { key: "system", label: "System" },
+                  ] as const
+                ).map((opt) => {
+                  const selected = themeSetter.themeName === opt.key;
+                  return (
+                    <TouchableOpacity
+                      key={opt.key}
+                      onPress={() => themeSetter.setThemeName(opt.key as any)}
+                      style={[
+                        styles.segBtn,
+                        {
+                          backgroundColor: selected
+                            ? theme.colors.primaryGreen
+                            : "transparent",
+                          borderWidth: selected ? 0 : 1,
+                          borderColor: selected
+                            ? "transparent"
+                            : theme.colors.primaryGreen + "22",
+                          paddingVertical: theme.spacing.xs,
+                        },
+                      ]}
+                    >
+                      <Text
+                        style={{
+                          color: selected ? "#fff" : theme.colors.text,
+                          fontFamily: theme.fonts.family.bold,
+                        }}
+                      >
+                        {opt.label}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
             </View>
 
             {/* Reduce motion removed */}
